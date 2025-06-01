@@ -1,10 +1,88 @@
-// anthozoa.js
+// anthozoa.js - v0.01 (Phase 0 Complete - Canvas Sizing Refined)
 
-// ... (keep all existing global variables: versionNumber, appSettings, p5Canvas) ...
-// ... (keep existing setup(), draw(), setupControls(), and other helper functions like updateRangeSliderFill etc.) ...
+console.log("Anthozoa.js: Script loaded.");
+
+const versionNumber = "0.01";
+const appSettings = {
+    backgroundColor: '#1a1a1a', // Dark background for Anthozoa
+    // Add other initial settings as we define them in future phases
+};
+
+let p5Canvas; // Will hold the p5.js canvas
+
+function setup() {
+    console.log("Anthozoa: p5.js setup() called.");
+    const canvasPlaceholder = document.getElementById('p5-canvas-placeholder');
+    
+    if (!canvasPlaceholder) {
+        console.error("Anthozoa FATAL: Canvas placeholder DIV with ID '#p5-canvas-placeholder' not found in HTML!");
+        let body = document.querySelector('body');
+        if (body) body.innerHTML = '<h1 style="color:red; text-align:center; margin-top: 50px;">Error: HTML structure incomplete. Canvas placeholder missing. Cannot start application.</h1>';
+        noLoop(); 
+        return; 
+    }
+
+    try {
+        p5Canvas = createCanvas(100, 100); // Initial small canvas
+        if (p5Canvas && p5Canvas.elt) { 
+            p5Canvas.parent(canvasPlaceholder);
+            console.log("Anthozoa: Canvas created and parented to #p5-canvas-placeholder.");
+        } else {
+            console.error("Anthozoa FATAL: createCanvas() did not return a valid canvas element.");
+            noLoop(); return;
+        }
+    } catch (e) {
+        console.error("Anthozoa FATAL: Error during createCanvas() or parent():", e);
+        noLoop(); return;
+    }
+    
+    if (!setupControls()) {
+        console.warn("Anthozoa: setupControls() reported issues. Some UI elements might not be fully initialized.");
+    }
+    
+    windowResized(); 
+    console.log("Anthozoa: p5.js setup() finished.");
+}
+
+function draw() {
+    if (appSettings.backgroundColor) {
+        background(appSettings.backgroundColor);
+    } else {
+        background(0); // Fallback
+    }
+    
+    // For v0.01, to confirm drawing and version:
+    if (frameCount < 200) { // Draw for a few seconds to ensure it's visible
+        fill(180, 180, 180, 150); // Light gray, slightly transparent
+        textAlign(CENTER, CENTER);
+        textSize(16);
+        if (typeof width !== 'undefined' && typeof height !== 'undefined') { 
+            text("Anthozoa Canvas Active - v" + versionNumber, width / 2, height / 2);
+        }
+    }
+}
+
+function setupControls() {
+    console.log("Anthozoa: setupControls() called.");
+    const versionDisplayEl = document.getElementById('versionDisplay');
+    
+    if (versionDisplayEl) {
+        versionDisplayEl.textContent = `v${versionNumber}`;
+    } else {
+        console.warn("Anthozoa: Version display element #versionDisplay not found.");
+    }
+
+    // Add listeners for fullscreen events
+    ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(event =>
+        document.addEventListener(event, windowResized)
+    );
+
+    console.log("Anthozoa: setupControls() finished.");
+    return true; 
+}
 
 function windowResized() {
-    console.log("Anthozoa: windowResized() called.");
+    console.log("Anthozoa: windowResized() called - with control panel padding adjustment.");
     const mainTitle = document.getElementById('mainTitle');
     const controlsPanel = document.getElementById('controlsPanel'); // Needed for its padding
     const sketchContainer = document.getElementById('sketch-container'); 
@@ -37,7 +115,6 @@ function windowResized() {
         document.body.classList.add('fullscreen-active');
         newCanvasWidth = window.innerWidth;
         newCanvasHeight = window.innerHeight;
-        // In fullscreen, canvas has no extra padding, takes full viewport
     } else {
         document.body.classList.remove('fullscreen-active');
         
@@ -51,7 +128,6 @@ function windowResized() {
         let baseWidth = sketchContainer.clientWidth;
         
         // Adjust canvas width to account for the controls panel's internal padding
-        // This makes the canvas drawing area align with the content area of the controls
         newCanvasWidth = baseWidth - controlsTotalHorizontalPadding;
 
         const bodyStyle = window.getComputedStyle(document.body);
@@ -71,11 +147,11 @@ function windowResized() {
         const availableVerticalSpaceForCanvas = window.innerHeight - 
                                               bodyVerticalPadding - 
                                               titleHeight - 
-                                              actualControlsHeight - // Use actual rendered height
+                                              actualControlsHeight - 
                                               footerTotalHeight - 
                                               canvasMarginBottom;
         
-        newCanvasHeight = availableVerticalSpaceForCanvas;
+        newCanvasHeight = availableVerticalSpaceForCanvas; // Fill available vertical space
         
         newCanvasWidth = Math.max(50, newCanvasWidth); 
         newCanvasHeight = Math.max(50, newCanvasHeight); 
@@ -87,11 +163,13 @@ function windowResized() {
         console.error("Anthozoa: resizeCanvas function not available or p5Canvas not defined.");
     }
     
+    // Ensure background is redrawn after resize
     if (typeof background === 'function' && appSettings && appSettings.backgroundColor) {
          background(appSettings.backgroundColor); 
+    } else if (typeof background === 'function') {
+        background(0); // Fallback if settings are missing
     }
     console.log("Anthozoa: windowResized() finished, canvas should be: " + newCanvasWidth + "x" + newCanvasHeight);
 }
 
-// Make sure the rest of your anthozoa.js (setup, draw, setupControls, Shape class, etc.) remains the same
-// as the last version that was working correctly for functionality.
+console.log("Anthozoa.js: Script parsed. p5.js should call setup() soon if linked correctly.");
