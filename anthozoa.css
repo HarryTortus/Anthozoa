@@ -1,177 +1,132 @@
-:root {
-    --page-bg: #ede3df; 
-    --text-on-page-bg: #3b4c1a;
-    --control-panel-bg: rgba(76, 97, 33, 0.9); 
-    --text-on-control-panel: #f0f2f5; 
-    --slider-track-active: var(--text-on-page-bg); 
-    --slider-track-inactive: var(--page-bg);     
-    --slider-thumb-color: var(--text-on-page-bg);
-    --control-hover-color: #678130; 
-    --button-active-bg: #a2b575; /* Used for button:active state */
-    --canvas-bg-color: #1a1a1a; 
+/* anthozoa.css - Styles based on the last working Line Flow */
+body {
+    margin: 0;
+    overflow-x: hidden; 
+    background-color: #ede3df; /* Page background remains light */
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    min-height: 100vh; 
+    padding-top: 15px; 
+    padding-bottom: 5px; 
+    box-sizing: border-box;
+    font-family: 'Oswald', sans-serif; 
 }
 
-body { margin: 0; overflow-x: hidden; background-color: var(--page-bg); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-top: 15px; padding-bottom: 5px; box-sizing: border-box; font-family: 'Oswald', sans-serif; color: var(--text-on-page-bg); }
-.main-title { font-weight: 700; font-size: 2.8em; color: var(--text-on-page-bg); margin-top: 0; margin-bottom: 20px; text-align: center; letter-spacing: 1.5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); flex-shrink: 0; }
-#sketch-container { width: 100%; display: flex; flex-direction: column; align-items: center; flex-grow: 1; padding-left: 15px; padding-right: 15px; box-sizing: border-box; overflow: hidden; }
-#p5-canvas-placeholder { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
-canvas { display: block; border-radius: 8px; box-shadow: 0 5px 10px rgba(0,0,0,0.12); }
-        
-.controls {
+.main-title {
+    font-weight: 700;
+    font-size: 2.8em; /* Restored from 2.6em if preferred */
+    color: #3b4c1a;   /* Text on light page background */
+    margin-top: 0; 
+    margin-bottom: 20px;
+    text-align: center;
+    letter-spacing: 1.5px; 
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05); 
+    flex-shrink: 0; 
+}
+
+#sketch-container {
+    width: 100%; 
     display: flex;
-    flex-direction: row; /* Main direction for groups */
-    flex-wrap: wrap;     /* Allow groups to wrap */
-    justify-content: flex-start; /* Align groups to the start */
-    align-items: flex-start; /* Align wrapped groups to the start of their new line */
-    gap: 10px 20px; /* Gap between control groups (row-gap column-gap) */
-    background: var(--control-panel-bg); 
-    border-radius: 10px; 
-    padding: 10px 15px; 
-    color: var(--text-on-control-panel);
-    font-family: 'Oswald', sans-serif; 
-    font-size: 14px; 
+    flex-direction: column; 
+    align-items: center; 
+    flex-grow: 1; 
+    padding-left: 15px; 
+    padding-right: 15px;
+    box-sizing: border-box;
+    overflow: hidden; 
+}
+
+#p5-canvas-placeholder { /* Added styling for the placeholder */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px; 
+}
+
+canvas {
+    display: block; 
+    border-radius: 8px; 
+    box-shadow: 0 5px 10px rgba(0,0,0,0.12); 
+    /* max-width & height are handled by JS and placeholder */
+    flex-shrink: 0; 
+    /* background-color is set by p5.js background() command */
+}
+
+body.fullscreen-active { padding: 0 !important; overflow: hidden !important; }
+body.fullscreen-active .main-title,
+body.fullscreen-active .controls,
+body.fullscreen-active #site-footer { display: none !important; }
+body.fullscreen-active #sketch-container { width: 100vw !important; height: 100vh !important; max-width: none !important; padding: 0 !important; }
+body.fullscreen-active #p5-canvas-placeholder { margin-bottom: 0 !important; }
+body.fullscreen-active canvas { margin-bottom: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+
+.controls {
+    display: flex; flex-direction: column; gap: 18px;
+    background: rgba(76, 97, 33, 0.9); /* Control panel color from Line Flow */
+    border-radius: 10px; /* Adjusted from 12px */
+    padding: 15px 20px; /* Adjusted padding */
+    align-items: center; justify-content: center;
+    color: #f0f2f5; /* Text color on control panel */
+    font-family: 'Oswald', sans-serif; font-size: 14px;
     box-shadow: 0 3px 8px rgba(0,0,0,0.2); 
     width: 100%; 
-    box-sizing: border-box;
-    flex-shrink: 0; 
-    margin-bottom: 8px; 
+    box-sizing: border-box; flex-shrink: 0; 
+    overflow-x: auto; margin-bottom: 8px; /* Adjusted from 10px */
 }
-        
-.controls .control-group {
-    display: flex;
-    flex-direction: column; /* Stack labels within a slider group */
-    gap: 10px; /* Gap between label-input items within a group */
-    padding: 5px;
-    /* border: 1px dashed #fff3; /* For visualizing groups during layout */
-    /* min-width: 180px; /* Give groups some minimum width if they contain multiple items */
-}
+.controls .control-group { display: flex; flex-wrap: wrap; gap: 18px; width: 100%; justify-content: center;}
+.controls .control-group.action-group { padding-top: 18px; }
+.controls::-webkit-scrollbar { height: 10px; background: #ede3df; border-radius: 6px; }
+.controls::-webkit-scrollbar-thumb { background: #3b4c1a; border-radius: 6px; }
+.controls::-webkit-scrollbar-thumb:hover { background: #4c6121; }
 
-/* Group for sliders - allow individual label-input pairs to wrap */
-.controls .control-group#appearance-controls,
-.controls .control-group#behavior-controls {
-    flex-direction: row; /* Sliders within these groups will be in a row */
-    flex-wrap: wrap;     /* And wrap if necessary */
-    align-items: center; /* Center items in the row */
-    gap: 8px 15px;    /* Gap between each label-input unit */
-}
-.controls .control-group#appearance-controls label,
-.controls .control-group#behavior-controls label {
-    flex-direction: column; /* Stack text above input for sliders */
-    align-items: flex-start;
-    gap: 4px;
-    min-width: 130px; /* Ensure enough width for label text + slider */
-}
-
-.controls .control-group#action-controls {
+.controls label {
+    margin-right: 6px;
+    font-weight: normal; /* Non-bold labels */
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: center; /* Center action buttons */
-    gap: 10px;
-    width: 100%; /* Allow action group to take more space if it's the last one wrapping */
-    margin-top: 5px;
+    white-space: nowrap;
+    color: #f0f2f5; /* Ensure label text is light */
 }
+.controls input[type="range"] { width: 120px;-webkit-appearance: none;appearance: none;background: transparent;margin: 0 8px; cursor:pointer;}
+.controls input[type="range"]::-webkit-slider-runnable-track { width: 100%;height: 8px;background: linear-gradient(to right, #3b4c1a var(--range-progress, 0%), #ede3df var(--range-progress, 0%));border-radius: 4px;cursor: pointer; }
+.controls input[type="range"]::-moz-range-track { width: 100%;height: 8px;background: linear-gradient(to right, #3b4c1a var(--range-progress, 0%), #ede3df var(--range-progress, 0%));border-radius: 4px;cursor: pointer; }
+.controls input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none;appearance: none;border: none;width: 18px;height: 18px;border-radius: 50%;background: #3b4c1a;cursor: pointer;margin-top: -5px;box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.controls input[type="range"]::-moz-range-thumb { border: none;width: 18px;height: 18px;border-radius: 50%;background: #3b4c1a;cursor: pointer;box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.controls input[type="range"]:hover::-webkit-slider-thumb { background: #4c6121; }
+.controls input[type="range"]:hover::-moz-range-thumb { background: #4c6121; }
+.controls input[type="color"] { border: 1px solid #f0f2f5; background: transparent; width: 30px; height: 30px; border-radius: 4px; margin-left: 4px; padding:0; cursor:pointer;}
+.controls input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; } /* Inner padding for swatch */
+.controls input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px; }
+.controls input[type="color"]::-moz-color-swatch { border: none; border-radius: 2px; }
 
-.controls label { 
-    font-weight: normal; 
-    display: flex; 
-    /* align-items: center; Align to start for column layout */
-    white-space: nowrap; 
-    /* gap: 6px; Defined in group-specific labels now */
-    color: var(--text-on-control-panel); 
-    cursor: pointer; 
+.controls input[type="checkbox"] { transform: scale(1.1); margin-left: 6px; accent-color: #3b4c1a; cursor:pointer; }
+.controls button { background: #3b4c1a; color: #ede3df; border: none; border-radius: 6px; padding: 6px 16px; font-size: 14px; cursor: pointer; font-family: 'Oswald',sans-serif; font-weight: bold; margin-left: 8px; }
+.controls button:hover { background: #4c6121; }
+.value-display { display: inline-block; min-width: 30px; text-align: right; margin-left: 2px; font-weight: normal; color: #f0f2f5; }
+.color-swatch { width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5); margin-left: 8px; box-sizing: border-box; flex-shrink: 0; }
+
+#site-footer {
+    width: 100%; padding: 5px 15px; font-family: 'Oswald', sans-serif; font-size: 0.8em;
+    color: #3b4c1a; margin-top: auto; flex-shrink: 0; box-sizing: border-box;
+    display: flex; justify-content: center; align-items: center; flex-wrap:wrap; gap: 4px 10px; 
 }
-
-.controls input[type="checkbox"] { /* No changes needed */ }
-.controls input[type="range"] { /* No changes needed */ }
-/* ... All other specific input styles remain the same ... */
-.controls input[type="color"] { 
-    border: 1px solid var(--text-on-control-panel); 
-    background: var(--canvas-bg-color); 
-    width: 100%; /* Make color picker fill available space in its label */
-    max-width: 100px; /* But not too wide */
-    height: 28px; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    padding: 0; 
-    margin-top: 2px; /* Align with slider if text is above */
-}
-
-
-/* ACTION BUTTONS (Play/Pause, Reset, Fullscreen) */
-.controls .control-group#action-controls button {
-    background: transparent; 
-    color: var(--text-on-control-panel);
-    border: 1px solid var(--text-on-control-panel); 
-    border-radius: 5px;
-    padding: 6px 12px; 
-    box-shadow: none; 
-    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-    font-family: 'Oswald', sans-serif; 
-    font-weight: normal; 
-    font-size: 0.9em;   
-    line-height: 1.2;   
-    min-width: auto;  /* Let text define width */  
-    text-align: center;
-    cursor: pointer;
-}
-.controls .control-group#action-controls button:hover { background: var(--text-on-control-panel); color: var(--control-panel-bg); border-color: var(--text-on-control-panel); }
-.controls .control-group#action-controls button:active { background: var(--button-active-bg); color: var(--control-panel-bg); border-color: var(--button-active-bg); }
-button#playPauseButton { min-width: 70px; } /* For "Pause" text */
-button#fullscreenButton { font-weight: bold; } 
-
-.value-display { /* ... (No changes needed) ... */ }
-        
-/* Remove .shape-selector and .shape-button as they are not in current Anthozoa HTML */
-
-#site-footer { /* ... (No changes needed) ... */ }
-body.fullscreen-active { /* ... (No changes needed) ... */ }
-
-/* MEDIA QUERIES for responsive control layout */
-@media (max-width: 900px) { /* Example breakpoint: groups might start stacking */
-    .controls {
-        /* justify-content: center; */ /* Center groups if they stack */
-    }
-    .controls .control-group#appearance-controls,
-    .controls .control-group#behavior-controls {
-        justify-content: center; /* Center sliders if group is wide */
-    }
-}
+#site-footer a { color: #3b4c1a; text-decoration: none; }
+#site-footer a:hover { text-decoration: underline; }
+#site-footer span { color: #3b4c1a; }
 
 @media (max-width: 600px) { 
-    .main-title { font-size: 2em; margin-bottom: 15px; }
-    .controls { padding: 8px; flex-direction: column; align-items: center; } /* Stack all groups */
-    
-    .controls .control-group { 
-        width: 100%; 
-        max-width: 350px; /* Max width for stacked groups */
-        padding: 8px 0; 
-        align-items: center; /* Center content of group */
-    }
-    /* Slider labels stack text above input by default due to label's flex-direction: column */
-    .controls .control-group#appearance-controls label,
-    .controls .control-group#behavior-controls label {
-        min-width: 150px; /* Adjust for stacked view */
-        align-items: center; /* Center text and input within label */
-    }
-     .controls .control-group#appearance-controls input[type="color"] {
-        margin-left: 0; /* Reset margin if text is above */
-    }
-
-    .controls .control-group#action-controls {
-        flex-direction: row; /* Keep action buttons in a row */
-        justify-content: center;
-        width: 100%;
-        max-width: none; 
-    }
-    .controls input[type="range"] { width: 150px; } /* Slightly wider in stacked view */
-    #site-footer { font-size: 0.75em; }
+    .main-title { font-size: 2em; margin-bottom: 20px; letter-spacing: 1.5px; }
+    .controls { padding: 15px; gap: 15px; }
+    .controls label { font-size: 13px; }
+    .controls input[type="range"] { width: 100px; }
 }
 @media (max-width: 420px) {
-    .main-title { font-size: 1.7em; margin-bottom: 12px; }
-    #sketch-container { padding-left: 10px; padding-right: 10px; }
-    .controls input[type="range"] { width: 130px; }
-    .controls .control-group#action-controls button { font-size: 0.85em; padding: 5px 8px;}
-    button#playPauseButton { min-width: 60px; }
+    .main-title { font-size: 1.7em; margin-bottom: 15px; letter-spacing: 1px;}
+    #sketch-container { padding-left: 10px; padding-right: 10px;}
+    .controls .control-group { flex-direction: column; align-items: stretch; }
+    .controls label { justify-content: space-between; }
+    .controls input[type="range"] { width: auto; flex-grow: 1; margin-left: 10px; }
+    .controls button { width: 100%; margin-left: 0; margin-top: 10px; }
 }
