@@ -9,37 +9,200 @@
         :root {
             --page-bg: #ede3df; 
             --text-on-page-bg: #3b4c1a;
-            --control-panel-bg: rgba(76, 97, 33, 0.85);
+            --control-panel-bg: rgba(76, 97, 33, 0.85); 
             --text-on-control-panel: #f0f2f5; 
+            --slider-track-active: var(--text-on-page-bg); 
+            --slider-track-inactive: var(--page-bg);     
+            --slider-thumb-color: var(--text-on-page-bg);
+            --control-hover-color: #678130; 
+            --shape-button-active-bg: #a2b575; 
+            --shape-button-hover-bg: var(--page-bg); 
             --canvas-bg-color: #1a1a1a; 
         }
+
         body { margin: 0; overflow-x: hidden; background-color: var(--page-bg); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-top: 15px; padding-bottom: 5px; box-sizing: border-box; font-family: 'Oswald', sans-serif; color: var(--text-on-page-bg); }
         .main-title { font-weight: 700; font-size: 2.8em; color: var(--text-on-page-bg); margin-top: 0; margin-bottom: 20px; text-align: center; letter-spacing: 1.5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); flex-shrink: 0; }
         #sketch-container { width: 100%; display: flex; flex-direction: column; align-items: center; flex-grow: 1; padding-left: 15px; padding-right: 15px; box-sizing: border-box; overflow: hidden; }
         #p5-canvas-placeholder { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
         canvas { display: block; border-radius: 8px; box-shadow: 0 5px 10px rgba(0,0,0,0.12); }
-        .controls { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-around; align-items: center; gap: 10px 15px; background: var(--control-panel-bg); border-radius: 10px; padding: 10px 15px; color: var(--text-on-control-panel); font-family: 'Oswald', sans-serif; font-size: 14px; box-shadow: 0 3px 8px rgba(0,0,0,0.2); width: 100%; box-sizing: border-box; flex-shrink: 0; margin-bottom: 8px; min-height: 50px; }
+        
+        .controls {
+            display: flex;
+            flex-direction: row; 
+            flex-wrap: wrap; 
+            justify-content: space-around; 
+            align-items: center; 
+            gap: 10px 15px; 
+            background: var(--control-panel-bg); 
+            border-radius: 10px; 
+            padding: 8px 12px; 
+            color: var(--text-on-control-panel);
+            font-family: 'Oswald', sans-serif; 
+            font-size: 14px; 
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2); 
+            width: 100%; 
+            box-sizing: border-box;
+            flex-shrink: 0; 
+            margin-bottom: 8px; 
+        }
+        
+        .button-groups-wrapper {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap; 
+            justify-content: center;
+            align-items: center;
+            gap: 8px 20px; 
+        }
+
+        .controls .control-group {
+            display: flex;
+            flex-wrap: wrap; 
+            gap: 8px 12px; 
+            justify-content: center;
+            align-items: center;
+            padding: 4px 0; 
+        }
+        .controls .control-group.action-group, 
+        .controls .control-group.appearance-group,
+        .controls .control-group.behavior-group,
+        .controls .control-group.shape-selector /* If you had shape selector */ {
+             padding: 5px 8px; /* Add some padding around each distinct group */
+             /* border: 1px dashed rgba(240,242,245,0.1); /* Optional: for visualizing groups */
+        }
+
+
+        .controls label { font-weight: normal; display: flex; align-items: center; white-space: nowrap; gap: 6px; color: var(--text-on-control-panel); cursor: pointer; }
+        .controls input[type="checkbox"] { transform: scale(1.1); margin-left: 2px; margin-right: 4px; accent-color: var(--text-on-page-bg); cursor: pointer; }
+        .controls input[type="range"] { width: 110px; -webkit-appearance: none; appearance: none; background: transparent; margin: 0; cursor: pointer; }
+        .controls input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 8px; background: linear-gradient(to right, var(--slider-track-active) var(--range-progress, 0%), var(--slider-track-inactive) var(--range-progress, 0%)); border-radius: 4px; }
+        .controls input[type="range"]::-moz-range-track { width: 100%; height: 8px; background: linear-gradient(to right, var(--slider-track-active) var(--range-progress, 0%), var(--slider-track-inactive) var(--range-progress, 0%)); border-radius: 4px; }
+        .controls input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; border: none; width: 18px; height: 18px; border-radius: 50%; background: var(--slider-thumb-color); cursor: pointer; margin-top: -5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .controls input[type="range"]::-moz-range-thumb { border: none; width: 18px; height: 18px; border-radius: 50%; background: var(--slider-thumb-color); cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .controls input[type="range"]:hover::-webkit-slider-thumb { background: var(--control-hover-color); }
+        .controls input[type="range"]:hover::-moz-range-thumb { background: var(--control-hover-color); }
+        
+        .controls input[type="color"] { border: 1px solid var(--text-on-control-panel); background: var(--canvas-bg-color); width: 28px; height: 28px; border-radius: 4px; margin-left: 4px; cursor: pointer; padding: 0; }
+        .controls input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        .controls input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
+        .controls input[type="color"]::-moz-color-swatch { border: none; border-radius: 3px; }
+
+
+        .controls .action-buttons button, 
+        .controls button#fullscreenButton { background: transparent; color: var(--text-on-control-panel); border: 1px solid var(--text-on-control-panel); border-radius: 5px; padding: 6px 10px; box-shadow: none; transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease; font-family: 'Oswald', sans-serif; font-weight: normal; font-size: 0.9em; line-height: 1.2; min-width: 60px; text-align: center; cursor: pointer; }
+        .controls .action-buttons button:hover, 
+        .controls button#fullscreenButton:hover { background: var(--text-on-control-panel); color: var(--control-panel-bg); border-color: var(--text-on-control-panel); }
+        .controls .action-buttons button:active, 
+        .controls button#fullscreenButton:active { background: var(--shape-button-active-bg); color: var(--control-panel-bg); border-color: var(--shape-button-active-bg); }
+        button#motionButton { min-width: 65px; } 
+        button#fullscreenButton { font-weight: bold; } 
+
+        .value-display { display: inline-block; min-width: 25px; text-align: right; margin-left: 3px; padding: 1px 3px; border-radius: 3px; font-size: 0.9em; color: var(--text-on-control-panel); font-family: 'Oswald', sans-serif; font-weight: normal; }
+        
+        .controls .shape-selector { gap: 6px; }
+        .controls .shape-button { width: 28px; height: 28px; background-color: var(--text-on-control-panel); border: none; box-shadow: none; cursor: pointer; margin: 0; padding: 0; font-size: 0; border-radius: 4px; transition: background-color 0.2s ease, box-shadow 0.2s ease; display: flex; align-items: center; justify-content: center; }
+        .controls .shape-button:hover { background-color: var(--shape-button-hover-bg); box-shadow: 0 0 0 1px var(--text-on-control-panel); }
+        .controls .shape-button.active-shape { background-color: var(--shape-button-active-bg); box-shadow: 0 0 0 2px var(--text-on-control-panel), 0 0 5px var(--text-on-control-panel); }
+        #circleButton { clip-path: circle(42% at 50% 50%); }
+        #squareButton { clip-path: inset(18%); } 
+        #triangleButton { clip-path: polygon(50% 18%, 20% 82%, 80% 82%); }
+
         #site-footer { width: 100%; text-align: center; padding: 5px 15px; font-size: 0.8em; color: var(--text-on-page-bg); font-family: 'Oswald', sans-serif; margin-top: auto; flex-shrink: 0; box-sizing: border-box; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 4px 10px; }
         #site-footer a { color: var(--text-on-page-bg); text-decoration: none; }
         #site-footer a:hover { text-decoration: underline; }
         #site-footer span { color: var(--text-on-page-bg); }
+        
         body.fullscreen-active { padding: 0 !important; overflow: hidden !important; background-color: var(--canvas-bg-color) !important; }
-        body.fullscreen-active .main-title,
-        body.fullscreen-active .controls,
-        body.fullscreen-active #site-footer { display: none !important; }
+        body.fullscreen-active .main-title, body.fullscreen-active .controls, body.fullscreen-active #site-footer { display: none !important; }
         body.fullscreen-active #sketch-container { width: 100vw !important; height: 100vh !important; max-width: none !important; padding: 0 !important; }
         body.fullscreen-active #p5-canvas-placeholder { margin-bottom: 0 !important; }
         body.fullscreen-active canvas { border-radius: 0 !important; box-shadow: none !important; }
+
+        @media (max-width: 780px) { .button-groups-wrapper { width: 100%; justify-content: space-around; } }
+        @media (max-width: 600px) { 
+            .main-title { font-size: 2em; margin-bottom: 15px; }
+            .controls { padding: 8px; gap: 10px; flex-direction: column; }
+            .button-groups-wrapper { width: 100%; justify-content: center; gap: 8px 15px; }
+            .controls .control-group { width: 100%; padding: 6px 0; justify-content: center; }
+            .button-groups-wrapper .control-group.action-buttons, .button-groups-wrapper .control-group.shape-selector { width: auto; flex-grow: 1; justify-content: center; }
+            .controls .control-group.slider-group { flex-direction: column; align-items: center; gap: 12px; }
+            .controls .control-group.slider-group label { width: 100%; max-width: 260px; justify-content: space-between; margin: 0 auto; }
+            .controls input[type="range"] { width: 120px; }
+            #site-footer { font-size: 0.75em; }
+        }
+        @media (max-width: 420px) {
+            .main-title { font-size: 1.7em; margin-bottom: 12px; }
+            #sketch-container { padding-left: 10px; padding-right: 10px; }
+            .controls input[type="range"] { width: 100px; }
+            .button-groups-wrapper { flex-direction: column; gap: 10px; }
+            .controls .action-buttons button { font-size: 0.85em; min-width: auto; padding: 6px 8px;}
+            button#motionButton { min-width: 60px; }
+            .controls .shape-button { width: 26px; height: 26px; }
+        }
     </style>
 </head>
 <body>
     <h1 class="main-title" id="mainTitle">Anthozoa</h1>
 
     <div id="sketch-container">
-        <div id="p5-canvas-placeholder">
-            </div>
+        <div id="p5-canvas-placeholder"></div>
         <div class="controls" id="controlsPanel">
-            <p style="opacity: 0.7;">Controls Coming Soon...</p>
+            <div class="button-groups-wrapper">
+                <div class="control-group action-buttons">
+                    <button id="motionButton" title="Play/Pause Animation">Play</button>
+                    <button id="resetButton" title="Reset Simulation">Reset</button>
+                    <button id="fullscreenButton" title="Toggle Fullscreen">Fullscreen</button>
+                    <label title="Toggle Bouncy Borders">
+                        <input type="checkbox" id="bouncyBorderToggle">
+                        Bouncy Border 
+                    </label>
+                </div>
+                <div class="control-group shape-selector">
+                    <label style="margin-right:5px;">Shape: </label>
+                    <button id="circleButton" class="shape-button" data-shape="circle" title="Circle"></button>
+                    <button id="squareButton" class="shape-button" data-shape="square" title="Square"></button>
+                    <button id="triangleButton" class="shape-button" data-shape="triangle" title="Triangle"></button>
+                </div>
+            </div>
+            <div class="control-group slider-group">
+                <label>Line Thickness
+                    <input id="lineThickness" type="range" min="0.5" max="10" step="0.1" value="1.5">
+                    <span id="lineThickness-value" class="value-display">1.5</span>
+                </label>
+                <label>Base Line Hue
+                    <input id="baseHue" type="range" min="0" max="360" step="1" value="180">
+                    <span id="baseHue-value" class="value-display">180</span>
+                </label>
+                <label>Background
+                    <input id="backgroundColor" type="color" value="#1a1a1a">
+                </label>
+            </div>
+            <div class="control-group behavior-group">
+                <label>Growth Speed
+                    <input id="growthSpeed" type="range" min="0.1" max="5" step="0.1" value="1">
+                    <span id="growthSpeed-value" class="value-display">1.0</span>
+                </label>
+                <label>Repulsion
+                    <input id="repulsionIntensity" type="range" min="0" max="5" step="0.1" value="1">
+                    <span id="repulsionIntensity-value" class="value-display">1.0</span>
+                </label>
+                <label>Min Distance
+                    <input id="minDistance" type="range" min="5" max="100" step="1" value="20">
+                    <span id="minDistance-value" class="value-display">20</span>
+                </label>
+                <label>Turn Angle
+                    <input id="turnAngle" type="range" min="5" max="90" step="1" value="30">
+                    <span id="turnAngle-value" class="value-display">30</span> (°deg)
+                </label>
+                <label>Max Length
+                    <input id="maxCurveLength" type="range" min="50" max="1000" step="10" value="300">
+                    <span id="maxCurveLength-value" class="value-display">300</span>
+                </label>
+                <label>Noise Factor
+                    <input id="noiseInfluence" type="range" min="0" max="1" step="0.01" value="0.1">
+                    <span id="noiseInfluence-value" class="value-display">0.10</span>
+                </label>
+            </div>
         </div>
     </div>
 
@@ -52,6 +215,6 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="anthozoa.js" defer></script> {/* THIS LINE IS CRITICAL - IT MUST MATCH YOUR JS FILENAME */}
+    <script src="anthozoa.js" defer></script>
 </body>
 </html>
