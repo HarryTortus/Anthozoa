@@ -1,4 +1,4 @@
-// anthozoa.js - v0.02: UI Controls Added and Linked
+// anthozoa.js - v0.02: Corrected UI Controls Linked
 
 console.log("Anthozoa.js: Script loaded - v0.02");
 
@@ -22,13 +22,12 @@ let lineThicknessSliderEl, baseHueSliderEl, backgroundColorPickerEl,
     freezeGrowthToggleEl, bouncyBorderToggleEl, 
     growthSpeedSliderEl, repulsionIntensitySliderEl, minDistanceSliderEl,
     turnAngleSliderEl, maxCurveLengthSliderEl, noiseInfluenceSliderEl,
-    motionButtonEl, resetButtonEl, fullscreenButtonEl, // Added motionButtonEl for consistency
-    circleButtonEl, squareButtonEl, triangleButtonEl; // For shape selection (if added later)
+    resetButtonEl, fullscreenButtonEl; 
 
 let p5Canvas; 
-let shapes = []; // Will hold our AnthozoaOrganism instances
-let selectedShape = 'anthozoa_default'; // Placeholder, can be used if we have types later
-let motionActive = true; // Let's default to motion/growth being active
+// let shapes = []; // Will be used in later versions
+// let selectedShape = 'anthozoa_default'; // Not used in this version
+// let motionActive = true; // Replaced by appSettings.freezeGrowth
 
 // --- UTILITY FUNCTIONS ---
 function updateRangeSliderFill(inputElement) {
@@ -82,13 +81,13 @@ function draw() {
         background(0); 
     }
     
-    // For v0.02, to confirm drawing and version:
-    if (frameCount < 200 || !motionActive) { 
+    // Draw loop will check !appSettings.freezeGrowth for animation
+    if (frameCount < 200 || appSettings.freezeGrowth) { 
         fill(180, 180, 180, 150); 
         textAlign(CENTER, CENTER);
         textSize(16);
         if (typeof width !== 'undefined' && typeof height !== 'undefined') { 
-            text("Anthozoa v" + versionNumber + " - Controls Linked", width / 2, height / 2);
+            text("Anthozoa v" + versionNumber + (appSettings.freezeGrowth ? " (Frozen)" : " - Controls Linked"), width / 2, height / 2);
         }
     }
     // Actual Anthozoa drawing logic will go here in later versions
@@ -107,33 +106,26 @@ function setupControls() {
         return el;
     };
 
-    // Get all new elements
+    // Get elements for Anthozoa v0.02
     lineThicknessSliderEl = getEl('lineThickness');
     baseHueSliderEl = getEl('baseHue');
     backgroundColorPickerEl = getEl('backgroundColor');
     freezeGrowthToggleEl = getEl('freezeGrowthToggle');
-    bouncyBorderToggleEl = getEl('bouncyBorderToggle');
+    bouncyBorderToggleEl = getEl('bouncyBorderToggle'); 
     growthSpeedSliderEl = getEl('growthSpeed');
     repulsionIntensitySliderEl = getEl('repulsionIntensity');
     minDistanceSliderEl = getEl('minDistance');
     turnAngleSliderEl = getEl('turnAngle');
     maxCurveLengthSliderEl = getEl('maxCurveLength');
     noiseInfluenceSliderEl = getEl('noiseInfluence');
-    motionButtonEl = getEl('motionButton'); // Play/Pause button
     resetButtonEl = getEl('resetButton'); 
     fullscreenButtonEl = getEl('fullscreenButton'); 
-    
-    // Shape buttons (get them even if not used yet, for completeness)
-    circleButtonEl = getEl('circleButton');
-    squareButtonEl = getEl('squareButton');
-    triangleButtonEl = getEl('triangleButton');
     
     const versionDisplayEl = getEl('versionDisplay');
     if (versionDisplayEl) versionDisplayEl.textContent = `v${versionNumber}`;
 
     if (!allControlsFound) {
-        console.error("Anthozoa: Not all control elements were found. Check HTML IDs. Some controls may not work.");
-        // No hard return, let it try to set up what it can.
+        console.error("Anthozoa: Not all expected control elements were found. Check HTML IDs. Some controls may not work.");
     }
 
     // Initialize control values from appSettings
@@ -166,6 +158,11 @@ function setupControls() {
                 if (settingName === 'backgroundColor') { 
                     if (typeof background === 'function') background(appSettings.backgroundColor);
                 }
+                // For freezeGrowth, update the text on canvas for immediate feedback
+                if (settingName === 'freezeGrowth' && (frameCount > 200 || !appSettings.freezeGrowth)) {
+                     if (typeof background === 'function') background(appSettings.backgroundColor); // Redraw to clear old text
+                     // The draw loop will handle drawing the new text based on appSettings.freezeGrowth
+                }
                 console.log("Anthozoa AppSetting Changed:", settingName, "=", appSettings[settingName]); 
             });
         }
@@ -183,16 +180,6 @@ function setupControls() {
     addInputListener(maxCurveLengthSliderEl, 'maxCurveLength');
     addInputListener(noiseInfluenceSliderEl, 'noiseInfluence');
 
-    if(motionButtonEl) {
-        motionButtonEl.innerHTML = motionActive ? 'Pause' : 'Play'; // Set initial text
-        motionButtonEl.addEventListener('click', () => {
-            motionActive = !motionActive;
-            motionButtonEl.innerHTML = motionActive ? 'Pause' : 'Play';
-            console.log("Anthozoa: Motion Active =", motionActive);
-        });
-    }
-
-
     if(resetButtonEl) {
         resetButtonEl.addEventListener('click', () => {
             console.log("Anthozoa: Reset button clicked.");
@@ -204,9 +191,6 @@ function setupControls() {
             appSettings.minDistance = 20; appSettings.turnAngle = 30; 
             appSettings.maxCurveLength = 300; appSettings.noiseInfluence = 0.1;
             
-            motionActive = true; // Default to active on reset for now
-            if (motionButtonEl) motionButtonEl.innerHTML = motionActive ? 'Pause' : 'Play';
-
             // Update HTML controls to reflect these defaults
             if (lineThicknessSliderEl) lineThicknessSliderEl.value = appSettings.lineThickness;
             if (baseHueSliderEl) baseHueSliderEl.value = appSettings.baseHue;
@@ -224,16 +208,17 @@ function setupControls() {
                 if(slider) { updateSliderValueDisplay(slider); updateRangeSliderFill(slider); }
             });
             if (typeof background === 'function') background(appSettings.backgroundColor); 
-            shapes = []; // Clear existing shapes
+            shapes = []; 
         });
     }
 
-    if(fullscreenButtonEl) { /* ... (Same fullscreen logic) ... */ }
-    if(circleButtonEl) circleButtonEl.addEventListener('click', () => selectShapeHandler('circle'));
-    if(squareButtonEl) squareButtonEl.addEventListener('click', () => selectShapeHandler('square'));
-    if(triangleButtonEl) triangleButtonEl.addEventListener('click', () => selectShapeHandler('triangle'));
-    updateShapeButtonVisuals(); // Initialize shape button styles
-
+    if(fullscreenButtonEl) { 
+        fullscreenButtonEl.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.error(`Fullscreen error: ${err.message} (${err.name})`));
+            } else { if (document.exitFullscreen) document.exitFullscreen(); }
+        });
+    }
 
     ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(event =>
         document.addEventListener(event, windowResized)
@@ -243,7 +228,7 @@ function setupControls() {
 }
 
 function updateSliderValueDisplay(sliderElement) {
-    if(!sliderElement || !sliderElement.id) return; // Added check for sliderElement.id
+    if(!sliderElement || !sliderElement.id) return; 
     const valueDisplayId = sliderElement.id + '-value';
     const valueDisplayElement = document.getElementById(valueDisplayId);
     if (valueDisplayElement) {
@@ -257,34 +242,11 @@ function updateSliderValueDisplay(sliderElement) {
             }
         }
         valueDisplayElement.textContent = value.toFixed(decimalPlaces);
-    } else {
-        // console.warn("Anthozoa: Value display span not found for slider: #" + sliderElement.id + "-value");
+        if (sliderElement.id === 'turnAngle') { // Add degree symbol for turn angle
+            valueDisplayElement.textContent += '°';
+        }
     }
 }
-
-function selectShapeHandler(shapeType) { // Basic for now, will be used later
-    selectedShape = shapeType;
-    console.log("Anthozoa: Selected shape type - " + selectedShape);
-    updateShapeButtonVisuals();
-}
-
-function updateShapeButtonVisuals() { // Basic for now
-    const buttons = [
-        { el: circleButtonEl, shape: 'circle' },
-        { el: squareButtonEl, shape: 'square' },
-        { el: triangleButtonEl, shape: 'triangle' }
-    ];
-    buttons.forEach(item => {
-        if (item.el) { 
-            if (item.shape === selectedShape) {
-                item.el.classList.add('active-shape');
-            } else {
-                item.el.classList.remove('active-shape');
-            }
-        }
-    });
-}
-
 
 function windowResized() {
     console.log("Anthozoa: windowResized() called - with control panel padding adjustment.");
