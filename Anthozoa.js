@@ -1,59 +1,62 @@
-// anthozoa.js - v0.01: Basic Setup
+// anthozoa.js - v0.01: Basic Setup (Focus on robust canvas creation)
 
 console.log("Anthozoa.js: Script loaded.");
 
 const versionNumber = "0.01";
 const appSettings = {
-    backgroundColor: '#1a1a1a', // Dark background for Anthozoa
-    // Add other initial settings as we define them
+    backgroundColor: '#1a1a1a', 
 };
 
-let p5Canvas; // Will hold the p5.js canvas
+let p5Canvas; 
 
 function setup() {
     console.log("Anthozoa: p5.js setup() called.");
     const canvasPlaceholder = document.getElementById('p5-canvas-placeholder');
     
     if (!canvasPlaceholder) {
-        console.error("Anthozoa FATAL: Canvas placeholder #p5-canvas-placeholder not found!");
-        // Optional: Display an error message to the user on the page itself
+        console.error("Anthozoa FATAL: Canvas placeholder DIV with ID '#p5-canvas-placeholder' not found in HTML!");
         let body = document.querySelector('body');
-        if (body) body.innerHTML = '<h1 style="color:red; text-align:center; margin-top: 50px;">Error: Canvas placeholder missing. Cannot start application.</h1>';
-        return; // Stop execution
+        if (body) body.innerHTML = '<h1 style="color:red; text-align:center; margin-top: 50px;">Error: HTML structure incomplete. Canvas placeholder missing. Cannot start application.</h1>';
+        noLoop(); 
+        return; 
     }
 
-    // Create a small temporary canvas, windowResized will adjust it
-    p5Canvas = createCanvas(100, 100); 
-    if (p5Canvas) {
-        p5Canvas.parent(canvasPlaceholder);
-        console.log("Anthozoa: Canvas created and parented.");
-    } else {
-        console.error("Anthozoa FATAL: createCanvas() failed.");
-        return; // Stop execution
+    try {
+        p5Canvas = createCanvas(100, 100); 
+        if (p5Canvas && p5Canvas.elt) { 
+            p5Canvas.parent(canvasPlaceholder);
+            console.log("Anthozoa: Canvas created and parented to #p5-canvas-placeholder.");
+        } else {
+            console.error("Anthozoa FATAL: createCanvas() did not return a valid canvas element.");
+            noLoop(); return;
+        }
+    } catch (e) {
+        console.error("Anthozoa FATAL: Error during createCanvas() or parent():", e);
+        noLoop(); return;
     }
     
     if (!setupControls()) {
         console.warn("Anthozoa: setupControls() reported issues. Some UI elements might not be fully initialized.");
     }
     
-    windowResized(); // Initial sizing of the canvas
+    windowResized(); 
     console.log("Anthozoa: p5.js setup() finished.");
 }
 
 function draw() {
-    // For v0.01, just clear the background
     if (appSettings.backgroundColor) {
         background(appSettings.backgroundColor);
     } else {
         background(0); // Fallback
     }
-
-    // In future phases, we'll call update and display methods for Anthozoa organisms here
-    // For v0.01, maybe draw a simple text to confirm canvas is working:
-    // fill(200);
-    // textAlign(CENTER, CENTER);
-    // textSize(24);
-    // text("Anthozoa v" + versionNumber, width / 2, height / 2);
+    if (frameCount < 10) { 
+        fill(200); 
+        textAlign(CENTER, CENTER);
+        textSize(16);
+        if (typeof width !== 'undefined' && typeof height !== 'undefined') { // Ensure width/height are defined
+            text("Anthozoa Canvas Active - v" + versionNumber, width / 2, height / 2);
+        }
+    }
 }
 
 function setupControls() {
@@ -62,18 +65,16 @@ function setupControls() {
     
     if (versionDisplayEl) {
         versionDisplayEl.textContent = `v${versionNumber}`;
-        console.log("Anthozoa: Version number set to " + versionNumber);
     } else {
         console.warn("Anthozoa: Version display element #versionDisplay not found.");
     }
 
-    // Add listeners for fullscreen events
     ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(event =>
         document.addEventListener(event, windowResized)
     );
 
     console.log("Anthozoa: setupControls() finished.");
-    return true; // Indicate successful basic setup
+    return true; 
 }
 
 function windowResized() {
@@ -84,19 +85,27 @@ function windowResized() {
     const siteFooter = document.getElementById('site-footer');
     const canvasPlaceholder = document.getElementById('p5-canvas-placeholder');
 
-
     if (!mainTitle || !controlsPanel || !sketchContainer || !siteFooter || !canvasPlaceholder) {
-        console.error("Anthozoa: windowResized - One or more critical layout elements not found. Aborting resize.");
-        if (typeof resizeCanvas === 'function') resizeCanvas(Math.max(50,100), Math.max(50,100)); 
+        console.error("Anthozoa: windowResized - One or more CRITICAL layout DIVs not found. Cannot accurately size canvas.");
+        if (p5Canvas && typeof resizeCanvas === 'function') {
+             let fallbackW = window.innerWidth > 50 ? window.innerWidth - 20 : 50;
+             let fallbackH = window.innerHeight > 50 ? window.innerHeight / 2 : 50;
+             resizeCanvas(Math.max(50, fallbackW) , Math.max(50, fallbackH));
+        }
         if (typeof background === 'function') background(200); 
         return;
     }
 
     let newCanvasWidth, newCanvasHeight;
-    // Get margin from the placeholder as canvas itself might not have it set yet by p5 if just created
+    
+    let canvasMarginBottom = 15; 
     const placeholderStyle = getComputedStyle(canvasPlaceholder);
-    const CANVAS_MARGIN_BOTTOM = parseFloat(placeholderStyle.marginBottom) || 15;
-
+    if (placeholderStyle && placeholderStyle.marginBottom) {
+        const parsedMargin = parseFloat(placeholderStyle.marginBottom);
+        if (!isNaN(parsedMargin)) {
+            canvasMarginBottom = parsedMargin;
+        }
+    }
 
     if (document.fullscreenElement) {
         document.body.classList.add('fullscreen-active');
@@ -124,7 +133,7 @@ function windowResized() {
                                               titleHeight - 
                                               controlsHeight - 
                                               footerTotalHeight - 
-                                              CANVAS_MARGIN_BOTTOM;
+                                              canvasMarginBottom;
         
         newCanvasHeight = availableVerticalSpaceForCanvas;
         
@@ -132,19 +141,16 @@ function windowResized() {
         newCanvasHeight = Math.max(50, newCanvasHeight); 
     }
 
-    if (typeof resizeCanvas === 'function') {
+    if (p5Canvas && typeof resizeCanvas === 'function') { 
         resizeCanvas(newCanvasWidth, newCanvasHeight);
-    } 
+    } else {
+        console.error("Anthozoa: resizeCanvas function not available or p5Canvas not defined.");
+    }
+    
     if (typeof background === 'function' && appSettings && appSettings.backgroundColor) {
          background(appSettings.backgroundColor); 
     }
-    console.log("Anthozoa: windowResized() finished, canvas: " + newCanvasWidth + "x" + newCanvasHeight);
+    console.log("Anthozoa: windowResized() finished, canvas should be: " + newCanvasWidth + "x" + newCanvasHeight);
 }
 
-// Placeholder for future utility functions if needed
-// function someUtilityFunction() { /* ... */ }
-
-// Initial call to ensure setup happens after DOM is fully loaded.
-// p5.js in global mode usually handles this, but explicit defer on script tag helps.
-// If not using instance mode, p5 will call setup() automatically.
-console.log("Anthozoa.js: Script parsed. p5.js should call setup() soon.");
+console.log("Anthozoa.js: Script parsed. p5.js should call setup() soon if linked correctly.");
