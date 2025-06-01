@@ -11,24 +11,21 @@
     <h1 class="main-title" id="mainTitle">Anthozoa</h1>
 
     <div id="sketch-container">
-        <div id="p5-canvas-placeholder">
-            </div>
+        <div id="p5-canvas-placeholder"></div>
         <div class="controls" id="controlsPanel">
-            <div class="control-group appearance-group">
+            <div class="control-group" id="appearance-controls">
                 <label>Line Thickness
                     <input id="lineThickness" type="range" min="0.5" max="10" step="0.1" value="1.5">
                     <span id="lineThickness-value" class="value-display">1.5</span>
                 </label>
-                <label>Base Line Hue
-                    <input id="baseHue" type="range" min="0" max="360" step="1" value="180">
-                    <span id="baseHue-value" class="value-display">180</span>
-                </label>
+                <label>Line Color
+                    <input id="lineColor" type="color" value="#f0f2f5"> </label>
                 <label>Background
                     <input id="backgroundColor" type="color" value="#1a1a1a">
                 </label>
             </div>
 
-            <div class="control-group behavior-group">
+            <div class="control-group" id="behavior-controls">
                 <label>Growth Speed
                     <input id="growthSpeed" type="range" min="0.1" max="5" step="0.1" value="1">
                     <span id="growthSpeed-value" class="value-display">1.0</span>
@@ -43,7 +40,7 @@
                 </label>
                 <label>Turn Angle
                     <input id="turnAngle" type="range" min="5" max="90" step="1" value="30">
-                    <span id="turnAngle-value" class="value-display">30</span> (°deg)
+                    <span id="turnAngle-value" class="value-display">30</span>°
                 </label>
                 <label>Max Length
                     <input id="maxCurveLength" type="range" min="50" max="1000" step="10" value="300">
@@ -55,13 +52,8 @@
                 </label>
             </div>
 
-            <div class="control-group action-group">
-                <label title="Freeze/Unfreeze growth">
-                    <input type="checkbox" id="freezeGrowthToggle"> Freeze Growth
-                </label>
-                <label title="Toggle Bouncy Borders">
-                    <input type="checkbox" id="bouncyBorderToggle"> Bouncy Border
-                </label>
+            <div class="control-group" id="action-controls">
+                <button id="playPauseButton" title="Play/Pause Animation">Pause</button> 
                 <button id="resetButton" title="Reset Simulation">Reset</button>
                 <button id="fullscreenButton" title="Toggle Fullscreen">Fullscreen</button>
             </div>
