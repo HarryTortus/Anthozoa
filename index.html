@@ -9,104 +9,20 @@
         :root {
             --page-bg: #ede3df; 
             --text-on-page-bg: #3b4c1a;
-            --control-panel-bg: rgba(76, 97, 33, 0.85); /* Slightly more transparent for now */
+            --control-panel-bg: rgba(76, 97, 33, 0.85);
             --text-on-control-panel: #f0f2f5; 
-            --canvas-bg-color: #1a1a1a; /* Dark canvas bg for Anthozoa */
+            --canvas-bg-color: #1a1a1a; 
         }
-
-        body {
-            margin: 0;
-            overflow-x: hidden; 
-            background-color: var(--page-bg);
-            display: flex;
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 100vh; 
-            padding-top: 15px; 
-            padding-bottom: 5px; 
-            box-sizing: border-box;
-            font-family: 'Oswald', sans-serif; 
-            color: var(--text-on-page-bg); 
-        }
-
-        .main-title {
-            font-weight: 700; 
-            font-size: 2.8em; 
-            color: var(--text-on-page-bg); 
-            margin-top: 0; 
-            margin-bottom: 20px; 
-            text-align: center;
-            letter-spacing: 1.5px; 
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.05); 
-            flex-shrink: 0; 
-        }
-
-        #sketch-container {
-            width: 100%; 
-            display: flex;
-            flex-direction: column; 
-            align-items: center; 
-            flex-grow: 1; 
-            padding-left: 15px; 
-            padding-right: 15px;
-            box-sizing: border-box;
-            overflow: hidden; 
-        }
-
-        #p5-canvas-placeholder {
-            width: 100%; /* Placeholder takes width */
-            display: flex; /* Helps center canvas if p5 makes it block */
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 15px; 
-            /* The canvas itself will get border-radius, shadow from JS/CSS if needed */
-        }
-
-        canvas { /* Default p5 canvas styling */
-            display: block; 
-            border-radius: 8px; 
-            box-shadow: 0 5px 10px rgba(0,0,0,0.12); 
-        }
-        
-        .controls {
-            display: flex;
-            flex-direction: row; 
-            flex-wrap: wrap; 
-            justify-content: space-around; 
-            align-items: center; 
-            gap: 10px 15px; 
-            background: var(--control-panel-bg); 
-            border-radius: 10px; 
-            padding: 10px 15px; 
-            color: var(--text-on-control-panel);
-            font-family: 'Oswald', sans-serif; 
-            font-size: 14px; 
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2); 
-            width: 100%; 
-            box-sizing: border-box;
-            flex-shrink: 0; 
-            margin-bottom: 8px; 
-            min-height: 50px; /* Placeholder height */
-        }
-        
-        #site-footer {
-            width: 100%; text-align: center;
-            padding: 5px 15px; 
-            font-size: 0.8em; color: var(--text-on-page-bg); 
-            font-family: 'Oswald', sans-serif; 
-            margin-top: auto; flex-shrink: 0; 
-            box-sizing: border-box;
-            display: flex; 
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap; 
-            gap: 4px 10px; 
-        }
+        body { margin: 0; overflow-x: hidden; background-color: var(--page-bg); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-top: 15px; padding-bottom: 5px; box-sizing: border-box; font-family: 'Oswald', sans-serif; color: var(--text-on-page-bg); }
+        .main-title { font-weight: 700; font-size: 2.8em; color: var(--text-on-page-bg); margin-top: 0; margin-bottom: 20px; text-align: center; letter-spacing: 1.5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); flex-shrink: 0; }
+        #sketch-container { width: 100%; display: flex; flex-direction: column; align-items: center; flex-grow: 1; padding-left: 15px; padding-right: 15px; box-sizing: border-box; overflow: hidden; }
+        #p5-canvas-placeholder { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
+        canvas { display: block; border-radius: 8px; box-shadow: 0 5px 10px rgba(0,0,0,0.12); }
+        .controls { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-around; align-items: center; gap: 10px 15px; background: var(--control-panel-bg); border-radius: 10px; padding: 10px 15px; color: var(--text-on-control-panel); font-family: 'Oswald', sans-serif; font-size: 14px; box-shadow: 0 3px 8px rgba(0,0,0,0.2); width: 100%; box-sizing: border-box; flex-shrink: 0; margin-bottom: 8px; min-height: 50px; }
+        #site-footer { width: 100%; text-align: center; padding: 5px 15px; font-size: 0.8em; color: var(--text-on-page-bg); font-family: 'Oswald', sans-serif; margin-top: auto; flex-shrink: 0; box-sizing: border-box; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 4px 10px; }
         #site-footer a { color: var(--text-on-page-bg); text-decoration: none; }
         #site-footer a:hover { text-decoration: underline; }
         #site-footer span { color: var(--text-on-page-bg); }
-
-        /* Fullscreen specific styles */
         body.fullscreen-active { padding: 0 !important; overflow: hidden !important; background-color: var(--canvas-bg-color) !important; }
         body.fullscreen-active .main-title,
         body.fullscreen-active .controls,
@@ -114,7 +30,6 @@
         body.fullscreen-active #sketch-container { width: 100vw !important; height: 100vh !important; max-width: none !important; padding: 0 !important; }
         body.fullscreen-active #p5-canvas-placeholder { margin-bottom: 0 !important; }
         body.fullscreen-active canvas { border-radius: 0 !important; box-shadow: none !important; }
-
     </style>
 </head>
 <body>
@@ -133,9 +48,10 @@
         <span>|</span>
         <a href="https://harrytortus.github.io/" target="_blank">HarryTortus.GitHub.io</a>
         <span>|</span>
-        <span id="versionDisplay">vX.XX</span> </footer>
+        <span id="versionDisplay">vX.XX</span>
+    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="anthozoa.js" defer></script>
+    <script src="anthozoa.js" defer></script> {/* THIS LINE IS CRITICAL - IT MUST MATCH YOUR JS FILENAME */}
 </body>
 </html>
