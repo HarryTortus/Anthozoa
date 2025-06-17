@@ -79,7 +79,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.08</span>
+        <span id="version-number">v0.09</span>
     </footer>
 
 
@@ -104,6 +104,10 @@
         let bgColor;
         let isPaused = false;
         let quadtree;
+        
+        // NEW: Variables for mobile tap debouncing
+        let lastPlantTime = 0;
+        const plantDebounce = 100; // 100ms debounce time
 
         // === OPTIMIZATION: QUADTREE IMPLEMENTATION === //
         class Point {
@@ -263,7 +267,6 @@
 
         // === p5.js Core Functions === //
         
-        // UPDATED: Function to calculate dynamic canvas size
         function getCanvasSize() {
              const container = document.getElementById('sketch-container');
              const titleEl = document.querySelector('.main-title');
@@ -380,15 +383,22 @@
             noiseOffset += 0.002;
         }
         
+        // UPDATED: Debounced mousePressed function
         function mousePressed() {
+            let now = millis();
+            if (now - lastPlantTime < plantDebounce) {
+                return; // Too soon, ignore this press
+            }
+            
             if (isPaused) return; 
+            
             if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
                  allLoops.push(new AnthozoaLoop(mouseX, mouseY));
+                 lastPlantTime = now;
             }
         }
 
         function windowResized() {
-            // UPDATED: Use the new dynamic size calculation on resize
             let canvasSize = getCanvasSize();
             resizeCanvas(canvasSize, canvasSize);
             background(bgColor);
