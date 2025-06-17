@@ -46,9 +46,14 @@
                 <input type="range" id="strokeWidth" min="1" max="10" value="2" step="0.5">
                 <span class="value-display" id="strokeWidth-value">2.0</span>
             </div>
+            <div class="control-group">
+                <label for="bgColorPicker">Background</label>
+                <input type="color" id="bgColorPicker" value="#ede3df">
+            </div>
              <div class="control-group action-buttons">
                 <button id="pause-btn">Pause</button>
                 <button id="clear-btn">Clear Canvas</button>
+                <button id="save-btn">Save Canvas</button>
             </div>
         </div>
     </div>
@@ -63,7 +68,7 @@
         let PARAMS = {
             repelDist: 50,
             growthThreshold: 12,
-            simplificationThreshold: 1, // REMOVED SLIDER: Hardcoded to 1 for best results.
+            simplificationThreshold: 1, // Hardcoded for best results.
             noiseAmount: 0.5,
             strokeWidth: 2,
             initialPoints: 10,
@@ -72,7 +77,7 @@
 
         let allLoops = [];
         let noiseOffset = 0;
-        let bgColor;
+        let bgColor; // This will hold the p5.js color object.
         let isPaused = false;
         let quadtree;
 
@@ -206,8 +211,11 @@
             const canvas = createCanvas(canvasSize, canvasSize);
             canvas.parent('p5-canvas-placeholder');
             colorMode(HSB, 360, 100, 100, 1);
-            bgColor = color(30, 12, 93);
+            
+            // Set initial background color from the picker's value
+            bgColor = color(document.getElementById('bgColorPicker').value);
             background(bgColor); 
+            
             setupControls();
         }
         
@@ -231,12 +239,28 @@
                 }
             });
 
-            document.getElementById('clear-btn').addEventListener('click', () => { allLoops = []; background(bgColor); });
+            // Background Color Picker
+            document.getElementById('bgColorPicker').addEventListener('input', (e) => {
+                bgColor = color(e.target.value);
+                background(bgColor); // Redraw background immediately
+            });
+
+            // Clear Button
+            document.getElementById('clear-btn').addEventListener('click', () => { 
+                allLoops = []; 
+                background(bgColor); 
+            });
             
+            // Pause/Play Button
             const pauseBtn = document.getElementById('pause-btn');
             pauseBtn.addEventListener('click', () => {
                 isPaused = !isPaused;
                 if (isPaused) { noLoop(); pauseBtn.textContent = 'Play'; } else { loop(); pauseBtn.textContent = 'Pause'; }
+            });
+
+            // Save Button
+            document.getElementById('save-btn').addEventListener('click', () => {
+                saveCanvas('anthozoa-creation', 'png');
             });
         }
         
@@ -247,7 +271,11 @@
         }
 
         function draw() {
-            background(30, 12, 93, 0.1); 
+            // Set the background with transparency for the trail effect
+            let trailColor = color(bgColor.toString()); // Clone the color
+            trailColor.setAlpha(25); // Set alpha (0-255 scale)
+            background(trailColor);
+            
             let boundary = new Rectangle(width / 2, height / 2, width / 2, height / 2);
             quadtree = new QuadTree(boundary, 4);
             for (let loop of allLoops) {
@@ -261,6 +289,7 @@
         
         function mousePressed() {
             if (isPaused) return; 
+            // Ensure click is within the canvas
             if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
                  allLoops.push(new AnthozoaLoop(mouseX, mouseY));
             }
