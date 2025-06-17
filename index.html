@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anthozoa - Generative Growth</title>
+    <title>Anthozoa</title>
     
     <!-- Import the p5.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
@@ -15,10 +15,24 @@
 
     <!-- Link to the external CSS file -->
     <link rel="stylesheet" href="anthozoa.css">
+    
+    <style>
+        /* Small additional style for the new subtitle */
+        .subtitle {
+            font-size: 1.1em;
+            font-weight: 400;
+            color: #5a722d;
+            margin-top: -15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
 
 </head>
 <body>
     <h1 class="main-title">Anthozoa</h1>
+    <p class="subtitle">Click on the canvas to plant a seed.</p>
+
 
     <div id="sketch-container">
         <div id="p5-canvas-placeholder"></div>
@@ -35,6 +49,13 @@
                 <label for="growthThreshold">Growth</label>
                 <input type="range" id="growthThreshold" min="5" max="40" value="12" step="1">
                 <span class="value-display" id="growthThreshold-value">12</span>
+            </div>
+             <!-- Boundary controls are now grouped together -->
+            <div class="control-group">
+                 <button id="wall-repel-btn">Boundaries: OFF</button>
+                <label for="boundaryMargin" style="margin-left:15px;">Margin</label>
+                <input type="range" id="boundaryMargin" min="1" max="150" value="50" step="1" disabled>
+                <span class="value-display" id="boundaryMargin-value">50</span>
             </div>
             <div class="control-group">
                 <label for="noiseAmount">Wander</label>
@@ -59,7 +80,12 @@
     </div>
 
     <footer id="site-footer">
-        <span>Click on the canvas to plant a seed.</span>
+        <!-- UPDATED FOOTER -->
+        <span><a href="https://www.mickeywilliamson3d.com/" target="_blank" rel="noopener noreferrer">Mickey Williamson</a></span>
+        <span>|</span>
+        <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
+        <span>|</span>
+        <span id="version-number">v0.05</span>
     </footer>
 
 
@@ -71,13 +97,15 @@
             simplificationThreshold: 1, // Hardcoded for best results.
             noiseAmount: 0.5,
             strokeWidth: 2,
+            wallRepel: false,
+            boundaryMargin: 50,
             initialPoints: 10,
             initialRadius: 15,
         };
 
         let allLoops = [];
         let noiseOffset = 0;
-        let bgColor; // This will hold the p5.js color object.
+        let bgColor;
         let isPaused = false;
         let quadtree;
 
@@ -147,18 +175,43 @@
                 let newPositions = [];
                 for (let i = 0; i < this.points.length; i++) {
                     let p = this.points[i];
+                    
                     let repulsion = this.getRepulsionVector(p);
                     repulsion.mult(2.0);
+
                     let noiseForce = this.getNoiseVector(p);
                     noiseForce.mult(PARAMS.noiseAmount);
+                    
                     let prev = this.points[(i - 1 + this.points.length) % this.points.length];
                     let next = this.points[(i + 1) % this.points.length];
                     let desiredMidpoint = p5.Vector.lerp(prev, next, 0.5);
                     let smoothingForce = p5.Vector.sub(desiredMidpoint, p);
                     smoothingForce.mult(0.1);
+
+                    let wallRepulsion = createVector(0, 0);
+                    if (PARAMS.wallRepel) {
+                        let boundaryDist = PARAMS.boundaryMargin;
+                        let wallForceStrength = 0.1;
+
+                        if (p.x < boundaryDist)       wallRepulsion.x += wallForceStrength * (boundaryDist - p.x);
+                        if (p.x > width - boundaryDist) wallRepulsion.x -= wallForceStrength * (p.x - (width - boundaryDist));
+                        if (p.y < boundaryDist)       wallRepulsion.y += wallForceStrength * (boundaryDist - p.y);
+                        if (p.y > height - boundaryDist) wallRepulsion.y -= wallForceStrength * (p.y - (height - boundaryDist));
+                    }
+                    
                     let totalForce = createVector();
-                    totalForce.add(repulsion).add(noiseForce).add(smoothingForce);
+                    totalForce.add(repulsion)
+                              .add(noiseForce)
+                              .add(smoothingForce)
+                              .add(wallRepulsion);
+
                     let newPos = p5.Vector.add(p, totalForce);
+
+                    if (PARAMS.wallRepel) {
+                        newPos.x = constrain(newPos.x, 0, width);
+                        newPos.y = constrain(newPos.y, 0, height);
+                    }
+
                     newPositions.push(newPos);
                 }
                 this.points = newPositions;
@@ -207,12 +260,11 @@
 
         function setup() {
             const container = document.getElementById('p5-canvas-placeholder');
-            const canvasSize = min(container.clientWidth, windowHeight * 0.7);
+            const canvasSize = min(container.clientWidth, windowHeight * 0.75); // Adjusted size slightly
             const canvas = createCanvas(canvasSize, canvasSize);
             canvas.parent('p5-canvas-placeholder');
             colorMode(HSB, 360, 100, 100, 1);
             
-            // Set initial background color from the picker's value
             bgColor = color(document.getElementById('bgColorPicker').value);
             background(bgColor); 
             
@@ -228,37 +280,52 @@
                     PARAMS[id] = value;
                     const valueSpan = document.getElementById(`${id}-value`);
                     if (valueSpan) {
-                         valueSpan.textContent = value.toFixed(id.includes('Amount') || id.includes('Width') ? 2 : 0);
+                         valueSpan.textContent = value.toFixed(id.includes('Amount') || id.includes('Width') ? 0 : 0);
                     }
                     updateSliderTrack(e.target);
                 });
                 updateSliderTrack(slider);
                 const initialValueSpan = document.getElementById(`${slider.id}-value`);
                 if(initialValueSpan) {
-                     initialValueSpan.textContent = Number(slider.value).toFixed(slider.id.includes('Amount') || slider.id.includes('Width') ? 2 : 0);
+                     initialValueSpan.textContent = Number(slider.value).toFixed(slider.id.includes('Amount') || slider.id.includes('Width') ? 0 : 0);
                 }
             });
-
-            // Background Color Picker
-            document.getElementById('bgColorPicker').addEventListener('input', (e) => {
-                bgColor = color(e.target.value);
-                background(bgColor); // Redraw background immediately
+            // Fix for sliders with decimals
+             document.querySelectorAll('#noiseAmount, #strokeWidth').forEach(s => {
+                const valueSpan = document.getElementById(`${s.id}-value`);
+                if(valueSpan) valueSpan.textContent = Number(s.value).toFixed(2);
+                s.addEventListener('input', (e) => {
+                     const valueSpan = document.getElementById(`${e.target.id}-value`);
+                     if(valueSpan) valueSpan.textContent = Number(e.target.value).toFixed(2);
+                });
             });
 
-            // Clear Button
+
+            document.getElementById('bgColorPicker').addEventListener('input', (e) => {
+                bgColor = color(e.target.value);
+                background(bgColor);
+            });
+
             document.getElementById('clear-btn').addEventListener('click', () => { 
                 allLoops = []; 
                 background(bgColor); 
             });
             
-            // Pause/Play Button
             const pauseBtn = document.getElementById('pause-btn');
             pauseBtn.addEventListener('click', () => {
                 isPaused = !isPaused;
                 if (isPaused) { noLoop(); pauseBtn.textContent = 'Play'; } else { loop(); pauseBtn.textContent = 'Pause'; }
             });
 
-            // Save Button
+            const wallRepelBtn = document.getElementById('wall-repel-btn');
+            const boundaryMarginSlider = document.getElementById('boundaryMargin');
+            wallRepelBtn.addEventListener('click', () => {
+                PARAMS.wallRepel = !PARAMS.wallRepel;
+                wallRepelBtn.textContent = `Boundaries: ${PARAMS.wallRepel ? 'ON' : 'OFF'}`;
+                // Enable/disable margin slider based on wall repel state
+                boundaryMarginSlider.disabled = !PARAMS.wallRepel;
+            });
+
             document.getElementById('save-btn').addEventListener('click', () => {
                 saveCanvas('anthozoa', 'png');
             });
@@ -271,9 +338,8 @@
         }
 
         function draw() {
-            // Set the background with transparency for the trail effect
-            let trailColor = color(bgColor.toString()); // Clone the color
-            trailColor.setAlpha(25); // Set alpha (0-255 scale)
+            let trailColor = color(bgColor.toString());
+            trailColor.setAlpha(25);
             background(trailColor);
             
             let boundary = new Rectangle(width / 2, height / 2, width / 2, height / 2);
@@ -289,7 +355,6 @@
         
         function mousePressed() {
             if (isPaused) return; 
-            // Ensure click is within the canvas
             if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
                  allLoops.push(new AnthozoaLoop(mouseX, mouseY));
             }
@@ -297,7 +362,7 @@
 
         function windowResized() {
             const container = document.getElementById('p5-canvas-placeholder');
-            const canvasSize = min(container.clientWidth, windowHeight * 0.7);
+            const canvasSize = min(container.clientWidth, windowHeight * 0.75); // Adjusted size slightly
             resizeCanvas(canvasSize, canvasSize);
             background(bgColor);
         }
