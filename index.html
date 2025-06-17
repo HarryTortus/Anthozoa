@@ -79,7 +79,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.09</span>
+        <span id="version-number">v0.10</span>
     </footer>
 
 
@@ -105,10 +105,6 @@
         let isPaused = false;
         let quadtree;
         
-        // NEW: Variables for mobile tap debouncing
-        let lastPlantTime = 0;
-        const plantDebounce = 100; // 100ms debounce time
-
         // === OPTIMIZATION: QUADTREE IMPLEMENTATION === //
         class Point {
             constructor(x, y, owner) { this.x = x; this.y = y; this.owner = owner; }
@@ -382,20 +378,26 @@
             for (let loop of allLoops) { loop.update(); loop.display(); }
             noiseOffset += 0.002;
         }
-        
-        // UPDATED: Debounced mousePressed function
-        function mousePressed() {
-            let now = millis();
-            if (now - lastPlantTime < plantDebounce) {
-                return; // Too soon, ignore this press
-            }
-            
-            if (isPaused) return; 
-            
+
+        // NEW: Centralized function to plant a seed
+        function plantSeed() {
+            if (isPaused) return;
+
+            // Check if the coordinates are within the canvas bounds.
             if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
                  allLoops.push(new AnthozoaLoop(mouseX, mouseY));
-                 lastPlantTime = now;
             }
+        }
+        
+        // UPDATED: mousePressed now only handles mouse clicks
+        function mousePressed() {
+            plantSeed();
+        }
+
+        // NEW: touchStarted handles touch events and prevents emulated mouse events
+        function touchStarted() {
+            plantSeed();
+            return false; // Prevents the browser from firing mouse events as well
         }
 
         function windowResized() {
