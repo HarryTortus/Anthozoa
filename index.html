@@ -3,45 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anthozoa</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="anthozoa.css">
+    <title>Anthozoa - Generative Growth</title>
+    
+    <!-- Import the p5.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    
+    <style>
+        /* Basic CSS Reset */
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --accent-color: #00bcd4;
+            --panel-bg-color: rgba(40, 40, 40, 0.85);
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Prevent scrollbars */
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                         Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* The main container for the p5.js canvas */
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Styling for the canvas element created by p5.js */
+        canvas {
+            display: block;
+            border: 1px solid var(--panel-bg-color);
+        }
+
+        /* Control Panel Styling */
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: var(--panel-bg-color);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            width: 280px;
+        }
+
+        .control-panel h1 {
+            margin: 0 0 15px 0;
+            font-size: 1.5em;
+            color: var(--accent-color);
+            text-align: center;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        
+        .control-group input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        /* Slider Track */
+        .control-group input[type="range"]::-webkit-slider-runnable-track {
+            background: #444;
+            height: 4px;
+            border-radius: 2px;
+        }
+        .control-group input[type="range"]::-moz-range-track {
+            background: #444;
+            height: 4px;
+            border-radius: 2px;
+        }
+        
+        /* Slider Thumb */
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -6px; /* Center thumb on the track */
+            background-color: var(--accent-color);
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-color);
+        }
+        .control-group input[type="range"]::-moz-range-thumb {
+            background-color: var(--accent-color);
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-color);
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--accent-color);
+            border: none;
+            border-radius: 8px;
+            color: var(--bg-color);
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #00dcfd;
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9em;
+            pointer-events: none; /* Make sure it doesn't block clicks */
+        }
+
+    </style>
 </head>
 <body>
-    <h1 class="main-title" id="mainTitle">Anthozoa</h1>
 
-    <div id="sketch-container">
-        <div id="p5-canvas-placeholder"></div>
-        <div class="controls" id="controlsPanel">
-            {/* These are Line Flow's controls - we will change these in the next step */}
-            <div class="control-group slider-group">
-                <label>Grid Resolution <input id="resolution" type="range" min="10" max="50" step="1" value="20"> <span id="resolution-value" class="value-display"></span></label>
-                <label>Line Length <input id="lineLength" type="range" min="5" max="300" step="1" value="30"> <span id="lineLength-value" class="value-display"></span></label>
-                <label>Noise Detail <input id="noiseScale" type="range" min="0.001" max="0.02" step="0.0005" value="0.001"><span id="noiseScale-value" class="value-display"></span></label>
-                <label>Animation Speed <input id="noiseSpeed" type="range" min="0.0001" max="0.002" step="0.0001" value="0.0001"> <span id="noiseSpeed-value" class="value-display"></span></label>
-                <label>Line Thickness <input id="lineThickness" type="range" min="0.5" max="5" step="0.5" value="1"> <span id="lineThickness-value" class="value-display"></span></label>
-            </div>
-            <div class="control-group action-group">
-                <label>Freeze <input id="freeze" type="checkbox"></label>
-                <label>Dynamic Color <input id="dynamicColor" type="checkbox"></label>
-                <label id="fixedLineColorControl">Line Color <input id="lineColor" type="color" value="#f0f2f5"></label> {/* Default light for dark bg */}
-                <label id="dynamicColorHueShiftControl" style="display: none;">Color Palette Shift <input id="hueShift" type="range" min="0" max="360" step="1" value="180"><div id="hueShiftColorSwatch" class="color-swatch"></div></label>
-                <label>Background <input id="backgroundColor" type="color" value="#1a1a1a"></label> {/* Default dark for Anthozoa */}
-                <button id="reset">Reset</button>
-                <button id="fullscreenButton">Fullscreen</button>
-            </div>
+    <main id="canvas-container"></main>
+
+    <div id="control-panel" class="control-panel">
+        <h1>Anthozoa Controls</h1>
+        
+        <div class="control-group">
+            <label for="repelDist">Repulsion Distance</label>
+            <input type="range" id="repelDist" min="10" max="150" value="50" step="1">
         </div>
+        
+        <div class="control-group">
+            <label for="growthThreshold">Growth Threshold</label>
+            <input type="range" id="growthThreshold" min="2" max="30" value="10" step="1">
+        </div>
+
+        <div class="control-group">
+            <label for="noiseAmount">Noise/Wander Amount</label>
+            <input type="range" id="noiseAmount" min="0" max="1.5" value="0.5" step="0.05">
+        </div>
+
+        <div class="control-group">
+            <label for="strokeWidth">Line Thickness</label>
+            <input type="range" id="strokeWidth" min="1" max="10" value="2" step="0.5">
+        </div>
+        
+        <button id="clear-btn">Clear Canvas</button>
     </div>
 
-    <footer id="site-footer">
-        <a href="https://www.mickeywilliamson3d.com/" target="_blank">MickeyWilliamson3D.com</a>
-        <span>|</span>
-        <a href="https://harrytortus.github.io/" target="_blank">HarryTortus.GitHub.io</a>
-        <span>|</span>
-        <span id="versionDisplay"></span>
-    </footer>
+    <div class="instructions">Click on the canvas to plant a seed</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="anthozoa.js" defer></script>
+    <script>
+        // === GLOBAL PARAMETERS === //
+        let PARAMS = {
+            repelDist: 50,
+            growthThreshold: 10, // NEW: Distance between points before a new one is added.
+            noiseAmount: 0.5,
+            strokeWidth: 2,
+            initialPoints: 10,   // Number of points in a new loop.
+            initialRadius: 15,   // Starting radius of a new loop.
+        };
+
+        let allLoops = [];
+        let noiseOffset = 0;
+
+        // === p5.js SKETCH === //
+
+        /**
+         * The AnthozoaLoop class represents a single growing, closed-loop structure.
+         */
+        class AnthozoaLoop {
+            constructor(x, y) {
+                this.points = [];
+                this.hue = random(360);
+                this.noiseSeed = random(1000);
+
+                // Create a small circle of points to start the loop.
+                for (let i = 0; i < PARAMS.initialPoints; i++) {
+                    let angle = map(i, 0, PARAMS.initialPoints, 0, TWO_PI);
+                    let px = x + cos(angle) * PARAMS.initialRadius;
+                    let py = y + sin(angle) * PARAMS.initialRadius;
+                    this.points.push(createVector(px, py));
+                }
+            }
+
+            /**
+             * The main update function, called on every frame.
+             */
+            update() {
+                this.grow();
+                this.movePoints();
+            }
+
+            /**
+             * Handles the expansion of the loop by adding new points.
+             */
+            grow() {
+                // Iterate backwards because we might be adding new points, which modifies the array length.
+                for (let i = this.points.length - 1; i >= 0; i--) {
+                    let p1 = this.points[i];
+                    // The next point in the loop, wrapping around from the last to the first.
+                    let p2 = this.points[(i + 1) % this.points.length];
+                    
+                    let d = p5.Vector.dist(p1, p2);
+
+                    // If two adjacent points are too far apart, insert a new one between them.
+                    if (d > PARAMS.growthThreshold) {
+                        let midPoint = p5.Vector.lerp(p1, p2, 0.5);
+                        this.points.splice(i + 1, 0, midPoint);
+                    }
+                }
+            }
+
+            /**
+             * Handles the movement of each point based on forces.
+             */
+            movePoints() {
+                // We calculate all new positions first before applying them
+                // to prevent a cascade effect within a single frame.
+                let newPositions = [];
+
+                for (let i = 0; i < this.points.length; i++) {
+                    let p = this.points[i];
+                    
+                    // --- Calculate Forces ---
+
+                    // 1. Repulsion Force: Pushes point away from all other points.
+                    let repulsion = this.getRepulsionVector(p);
+                    repulsion.mult(2.0); // Give repulsion a bit more strength
+
+                    // 2. Noise Force: Adds organic wandering motion.
+                    let noiseForce = this.getNoiseVector(p);
+                    noiseForce.mult(PARAMS.noiseAmount);
+                    
+                    // 3. Smoothing Force: Tries to keep segments evenly spaced.
+                    let prev = this.points[(i - 1 + this.points.length) % this.points.length];
+                    let next = this.points[(i + 1) % this.points.length];
+                    let desiredMidpoint = p5.Vector.lerp(prev, next, 0.5);
+                    let smoothingForce = p5.Vector.sub(desiredMidpoint, p);
+                    smoothingForce.mult(0.1); // This is a gentle force
+
+                    // --- Combine forces and update position ---
+                    let totalForce = createVector();
+                    totalForce.add(repulsion);
+                    totalForce.add(noiseForce);
+                    totalForce.add(smoothingForce);
+                    
+                    let newPos = p5.Vector.add(p, totalForce);
+                    newPositions.push(newPos);
+                }
+                
+                // Apply all the calculated new positions.
+                this.points = newPositions;
+            }
+
+            /**
+             * Generates a direction vector based on Perlin noise.
+             */
+            getNoiseVector(point) {
+                let angle = noise(point.x * 0.01, point.y * 0.01, this.noiseSeed + noiseOffset) * TWO_PI * 2;
+                return p5.Vector.fromAngle(angle);
+            }
+
+            /**
+             * Calculates a repulsion vector for a single point.
+             */
+            getRepulsionVector(point) {
+                let totalRepulsion = createVector(0, 0);
+
+                // Check against all other loops.
+                for (const otherLoop of allLoops) {
+                    // Check against all points in that loop.
+                    for (const otherPoint of otherLoop.points) {
+                        // Don't repel against yourself.
+                        if (point === otherPoint) continue;
+
+                        let d = p5.Vector.dist(point, otherPoint);
+                        if (d < PARAMS.repelDist && d > 0) {
+                            let repel = p5.Vector.sub(point, otherPoint);
+                            repel.normalize();
+                            repel.div(d); // Force is stronger when closer.
+                            totalRepulsion.add(repel);
+                        }
+                    }
+                }
+                return totalRepulsion;
+            }
+
+            /**
+             * Renders the loop on the canvas.
+             */
+            display() {
+                noFill();
+                stroke(this.hue, 80, 95);
+                strokeWeight(PARAMS.strokeWidth);
+                
+                // Draw the closed shape.
+                beginShape();
+                for (const p of this.points) {
+                    vertex(p.x, p.y);
+                }
+                endShape(CLOSE);
+            }
+        }
+
+        // === p5.js Core Functions === //
+
+        function setup() {
+            const container = document.getElementById('canvas-container');
+            const canvas = createCanvas(container.clientWidth, container.clientHeight);
+            canvas.parent('canvas-container');
+
+            colorMode(HSB, 360, 100, 100, 1);
+            background(10); 
+
+            // --- Setup Control Panel Listeners --- //
+            const controlPanel = document.getElementById('control-panel');
+            controlPanel.addEventListener('mousedown', (e) => e.stopPropagation());
+
+            document.getElementById('repelDist').addEventListener('input', (e) => {
+                PARAMS.repelDist = Number(e.target.value);
+            });
+            document.getElementById('growthThreshold').addEventListener('input', (e) => {
+                PARAMS.growthThreshold = Number(e.target.value);
+            });
+            document.getElementById('noiseAmount').addEventListener('input', (e) => {
+                PARAMS.noiseAmount = Number(e.target.value);
+            });
+            document.getElementById('strokeWidth').addEventListener('input', (e) => {
+                PARAMS.strokeWidth = Number(e.target.value);
+            });
+            document.getElementById('clear-btn').addEventListener('click', () => {
+                allLoops = [];
+                background(10);
+            });
+        }
+
+        function draw() {
+            background(10, 0.1);
+
+            for (let loop of allLoops) {
+                loop.update();
+                loop.display();
+            }
+
+            noiseOffset += 0.002;
+        }
+        
+        function mousePressed() {
+            const panel = document.getElementById('control-panel').getBoundingClientRect();
+            if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return;
+            if (mouseX > panel.right || (mouseY > panel.bottom && mouseX > panel.left)) {
+                allLoops.push(new AnthozoaLoop(mouseX, mouseY));
+            }
+        }
+
+        function windowResized() {
+            const container = document.getElementById('canvas-container');
+            resizeCanvas(container.clientWidth, container.clientHeight);
+            background(10);
+        }
+
+    </script>
 </body>
 </html>
