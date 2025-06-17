@@ -8,200 +8,190 @@
     <!-- Import the p5.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
     
-    <style>
-        /* Basic CSS Reset */
-        :root {
-            --bg-color: #1a1a1a;
-            --text-color: #f0f0f0;
-            --accent-color: #00bcd4;
-            --panel-bg-color: rgba(40, 40, 40, 0.85);
-        }
+    <!-- Import Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden; /* Prevent scrollbars */
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-                         Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
+    <!-- Link to the external CSS file -->
+    <link rel="stylesheet" href="anthozoa.css">
 
-        /* The main container for the p5.js canvas */
-        main {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Styling for the canvas element created by p5.js */
-        canvas {
-            display: block;
-            border: 1px solid var(--panel-bg-color);
-        }
-
-        /* Control Panel Styling */
-        .control-panel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background-color: var(--panel-bg-color);
-            padding: 20px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            width: 280px;
-        }
-
-        .control-panel h1 {
-            margin: 0 0 15px 0;
-            font-size: 1.5em;
-            color: var(--accent-color);
-            text-align: center;
-        }
-        
-        .control-group {
-            margin-bottom: 15px;
-        }
-
-        .control-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9em;
-        }
-        
-        .control-group input[type="range"] {
-            width: 100%;
-            -webkit-appearance: none;
-            appearance: none;
-            background: transparent;
-            cursor: pointer;
-        }
-
-        /* Slider Track */
-        .control-group input[type="range"]::-webkit-slider-runnable-track {
-            background: #444;
-            height: 4px;
-            border-radius: 2px;
-        }
-        .control-group input[type="range"]::-moz-range-track {
-            background: #444;
-            height: 4px;
-            border-radius: 2px;
-        }
-        
-        /* Slider Thumb */
-        .control-group input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            margin-top: -6px; /* Center thumb on the track */
-            background-color: var(--accent-color);
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            border: 2px solid var(--bg-color);
-        }
-        .control-group input[type="range"]::-moz-range-thumb {
-            background-color: var(--accent-color);
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            border: 2px solid var(--bg-color);
-        }
-        
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: var(--accent-color);
-            border: none;
-            border-radius: 8px;
-            color: var(--bg-color);
-            font-weight: bold;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #00dcfd;
-        }
-
-        .instructions {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.9em;
-            pointer-events: none; /* Make sure it doesn't block clicks */
-        }
-
-    </style>
 </head>
 <body>
+    <h1 class="main-title">Anthozoa</h1>
 
-    <main id="canvas-container"></main>
-
-    <div id="control-panel" class="control-panel">
-        <h1>Anthozoa Controls</h1>
-        
-        <div class="control-group">
-            <label for="repelDist">Repulsion Distance</label>
-            <input type="range" id="repelDist" min="10" max="150" value="50" step="1">
+    <div id="sketch-container">
+        <div id="p5-canvas-placeholder"></div>
+    </div>
+    
+    <div class="controls">
+        <div class="control-wrapper">
+            <div class="control-group">
+                <label for="repelDist">Repulsion</label>
+                <input type="range" id="repelDist" min="10" max="150" value="50" step="1">
+                <span class="value-display" id="repelDist-value">50</span>
+            </div>
+            <div class="control-group">
+                <label for="growthThreshold">Growth</label>
+                <input type="range" id="growthThreshold" min="2" max="30" value="10" step="1">
+                <span class="value-display" id="growthThreshold-value">10</span>
+            </div>
+            <div class="control-group">
+                <label for="noiseAmount">Wander</label>
+                <input type="range" id="noiseAmount" min="0" max="1.5" value="0.5" step="0.05">
+                <span class="value-display" id="noiseAmount-value">0.50</span>
+            </div>
+            <div class="control-group">
+                <label for="strokeWidth">Thickness</label>
+                <input type="range" id="strokeWidth" min="1" max="10" value="2" step="0.5">
+                <span class="value-display" id="strokeWidth-value">2.0</span>
+            </div>
+             <div class="control-group action-buttons">
+                <button id="pause-btn">Pause</button>
+                <button id="clear-btn">Clear Canvas</button>
+            </div>
         </div>
-        
-        <div class="control-group">
-            <label for="growthThreshold">Growth Threshold</label>
-            <input type="range" id="growthThreshold" min="2" max="30" value="10" step="1">
-        </div>
-
-        <div class="control-group">
-            <label for="noiseAmount">Noise/Wander Amount</label>
-            <input type="range" id="noiseAmount" min="0" max="1.5" value="0.5" step="0.05">
-        </div>
-
-        <div class="control-group">
-            <label for="strokeWidth">Line Thickness</label>
-            <input type="range" id="strokeWidth" min="1" max="10" value="2" step="0.5">
-        </div>
-        
-        <button id="clear-btn">Clear Canvas</button>
     </div>
 
-    <div class="instructions">Click on the canvas to plant a seed</div>
+    <footer id="site-footer">
+        <span>Click on the canvas to plant a seed.</span>
+    </footer>
+
 
     <script>
         // === GLOBAL PARAMETERS === //
         let PARAMS = {
             repelDist: 50,
-            growthThreshold: 10, // NEW: Distance between points before a new one is added.
+            growthThreshold: 10,
             noiseAmount: 0.5,
             strokeWidth: 2,
-            initialPoints: 10,   // Number of points in a new loop.
-            initialRadius: 15,   // Starting radius of a new loop.
+            initialPoints: 10,
+            initialRadius: 15,
         };
 
         let allLoops = [];
         let noiseOffset = 0;
+        let bgColor;
+        let isPaused = false;
+        let quadtree;
 
-        // === p5.js SKETCH === //
+        // === OPTIMIZATION: QUADTREE IMPLEMENTATION === //
 
         /**
-         * The AnthozoaLoop class represents a single growing, closed-loop structure.
+         * Represents a point in the quadtree.
+         * p5.Vector objects can be used directly but this is explicit.
          */
+        class Point {
+            constructor(x, y, owner) {
+                this.x = x;
+                this.y = y;
+                this.owner = owner; // Reference to the AnthozoaLoop
+            }
+        }
+        
+        /**
+         * Represents the rectangular boundary of a quadtree node.
+         */
+        class Rectangle {
+            constructor(x, y, w, h) {
+                this.x = x; // center x
+                this.y = y; // center y
+                this.w = w; // half-width
+                this.h = h; // half-height
+            }
+            // Check if this boundary contains a point
+            contains(point) {
+                return (point.x >= this.x - this.w &&
+                    point.x < this.x + this.w &&
+                    point.y >= this.y - this.h &&
+                    point.y < this.y + this.h);
+            }
+            // Check if this boundary intersects with a circular range
+            intersects(range) {
+                let xDist = Math.abs(range.x - this.x);
+                let yDist = Math.abs(range.y - this.y);
+                let r = range.r;
+                let w = this.w;
+                let h = this.h;
+                let edges = Math.pow(xDist - w, 2) + Math.pow(yDist - h, 2);
+                if (xDist > (r + w) || yDist > (r + h)) return false;
+                if (xDist <= w || yDist <= h) return true;
+                return edges <= r * r;
+            }
+        }
+        
+        /**
+         * The QuadTree class for spatial partitioning.
+         */
+        class QuadTree {
+            constructor(boundary, capacity) {
+                this.boundary = boundary;
+                this.capacity = capacity; // Max points before subdividing
+                this.points = [];
+                this.divided = false;
+            }
+
+            subdivide() {
+                let x = this.boundary.x;
+                let y = this.boundary.y;
+                let w = this.boundary.w / 2;
+                let h = this.boundary.h / 2;
+                let ne = new Rectangle(x + w, y - h, w, h);
+                this.northeast = new QuadTree(ne, this.capacity);
+                let nw = new Rectangle(x - w, y - h, w, h);
+                this.northwest = new QuadTree(nw, this.capacity);
+                let se = new Rectangle(x + w, y + h, w, h);
+                this.southeast = new QuadTree(se, this.capacity);
+                let sw = new Rectangle(x - w, y + h, w, h);
+                this.southwest = new QuadTree(sw, this.capacity);
+                this.divided = true;
+            }
+
+            insert(point) {
+                if (!this.boundary.contains(point)) {
+                    return false;
+                }
+                if (this.points.length < this.capacity) {
+                    this.points.push(point);
+                    return true;
+                }
+                if (!this.divided) {
+                    this.subdivide();
+                }
+                this.northeast.insert(point) || this.northwest.insert(point) || this.southeast.insert(point) || this.southwest.insert(point);
+            }
+
+            query(range, found) {
+                if (!found) {
+                    found = [];
+                }
+                if (!this.boundary.intersects(range)) {
+                    return found;
+                }
+                for (let p of this.points) {
+                    const d = Math.sqrt(Math.pow(p.x - range.x, 2) + Math.pow(p.y - range.y, 2));
+                    if (d < range.r) {
+                        found.push(p);
+                    }
+                }
+                if (this.divided) {
+                    this.northwest.query(range, found);
+                    this.northeast.query(range, found);
+                    this.southwest.query(range, found);
+                    this.southeast.query(range, found);
+                }
+                return found;
+            }
+        }
+
+
+        // === p5.js SKETCH === //
         class AnthozoaLoop {
             constructor(x, y) {
                 this.points = [];
                 this.hue = random(360);
                 this.noiseSeed = random(1000);
 
-                // Create a small circle of points to start the loop.
                 for (let i = 0; i < PARAMS.initialPoints; i++) {
                     let angle = map(i, 0, PARAMS.initialPoints, 0, TWO_PI);
                     let px = x + cos(angle) * PARAMS.initialRadius;
@@ -210,27 +200,16 @@
                 }
             }
 
-            /**
-             * The main update function, called on every frame.
-             */
             update() {
                 this.grow();
                 this.movePoints();
             }
 
-            /**
-             * Handles the expansion of the loop by adding new points.
-             */
             grow() {
-                // Iterate backwards because we might be adding new points, which modifies the array length.
                 for (let i = this.points.length - 1; i >= 0; i--) {
                     let p1 = this.points[i];
-                    // The next point in the loop, wrapping around from the last to the first.
                     let p2 = this.points[(i + 1) % this.points.length];
-                    
                     let d = p5.Vector.dist(p1, p2);
-
-                    // If two adjacent points are too far apart, insert a new one between them.
                     if (d > PARAMS.growthThreshold) {
                         let midPoint = p5.Vector.lerp(p1, p2, 0.5);
                         this.points.splice(i + 1, 0, midPoint);
@@ -238,90 +217,56 @@
                 }
             }
 
-            /**
-             * Handles the movement of each point based on forces.
-             */
             movePoints() {
-                // We calculate all new positions first before applying them
-                // to prevent a cascade effect within a single frame.
                 let newPositions = [];
-
                 for (let i = 0; i < this.points.length; i++) {
                     let p = this.points[i];
-                    
-                    // --- Calculate Forces ---
-
-                    // 1. Repulsion Force: Pushes point away from all other points.
                     let repulsion = this.getRepulsionVector(p);
-                    repulsion.mult(2.0); // Give repulsion a bit more strength
-
-                    // 2. Noise Force: Adds organic wandering motion.
+                    repulsion.mult(2.0);
                     let noiseForce = this.getNoiseVector(p);
                     noiseForce.mult(PARAMS.noiseAmount);
-                    
-                    // 3. Smoothing Force: Tries to keep segments evenly spaced.
                     let prev = this.points[(i - 1 + this.points.length) % this.points.length];
                     let next = this.points[(i + 1) % this.points.length];
                     let desiredMidpoint = p5.Vector.lerp(prev, next, 0.5);
                     let smoothingForce = p5.Vector.sub(desiredMidpoint, p);
-                    smoothingForce.mult(0.1); // This is a gentle force
-
-                    // --- Combine forces and update position ---
+                    smoothingForce.mult(0.1);
                     let totalForce = createVector();
-                    totalForce.add(repulsion);
-                    totalForce.add(noiseForce);
-                    totalForce.add(smoothingForce);
-                    
+                    totalForce.add(repulsion).add(noiseForce).add(smoothingForce);
                     let newPos = p5.Vector.add(p, totalForce);
                     newPositions.push(newPos);
                 }
-                
-                // Apply all the calculated new positions.
                 this.points = newPositions;
             }
 
-            /**
-             * Generates a direction vector based on Perlin noise.
-             */
             getNoiseVector(point) {
                 let angle = noise(point.x * 0.01, point.y * 0.01, this.noiseSeed + noiseOffset) * TWO_PI * 2;
                 return p5.Vector.fromAngle(angle);
             }
 
-            /**
-             * Calculates a repulsion vector for a single point.
-             */
+            // OPTIMIZED with Quadtree
             getRepulsionVector(point) {
                 let totalRepulsion = createVector(0, 0);
+                let range = { x: point.x, y: point.y, r: PARAMS.repelDist };
+                let neighbors = quadtree.query(range);
 
-                // Check against all other loops.
-                for (const otherLoop of allLoops) {
-                    // Check against all points in that loop.
-                    for (const otherPoint of otherLoop.points) {
-                        // Don't repel against yourself.
-                        if (point === otherPoint) continue;
-
-                        let d = p5.Vector.dist(point, otherPoint);
-                        if (d < PARAMS.repelDist && d > 0) {
-                            let repel = p5.Vector.sub(point, otherPoint);
-                            repel.normalize();
-                            repel.div(d); // Force is stronger when closer.
-                            totalRepulsion.add(repel);
-                        }
+                for (const otherPoint of neighbors) {
+                    if (point.x === otherPoint.x && point.y === otherPoint.y) continue;
+                    
+                    let d = dist(point.x, point.y, otherPoint.x, otherPoint.y);
+                    if (d > 0 && d < PARAMS.repelDist) {
+                        let repel = p5.Vector.sub(point, otherPoint);
+                        repel.normalize();
+                        repel.div(d);
+                        totalRepulsion.add(repel);
                     }
                 }
                 return totalRepulsion;
             }
 
-            /**
-             * Renders the loop on the canvas.
-             */
             display() {
-                noFill();
-                stroke(this.hue, 80, 95);
+                stroke(this.hue, 80, 85);
                 strokeWeight(PARAMS.strokeWidth);
-                
-                // Draw the closed shape.
+                noFill();
                 beginShape();
                 for (const p of this.points) {
                     vertex(p.x, p.y);
@@ -333,38 +278,78 @@
         // === p5.js Core Functions === //
 
         function setup() {
-            const container = document.getElementById('canvas-container');
-            const canvas = createCanvas(container.clientWidth, container.clientHeight);
-            canvas.parent('canvas-container');
+            const container = document.getElementById('p5-canvas-placeholder');
+            const canvasSize = min(container.clientWidth, windowHeight * 0.7);
+            const canvas = createCanvas(canvasSize, canvasSize);
+            canvas.parent('p5-canvas-placeholder');
 
             colorMode(HSB, 360, 100, 100, 1);
-            background(10); 
+            bgColor = color(30, 12, 93);
+            background(bgColor); 
 
-            // --- Setup Control Panel Listeners --- //
-            const controlPanel = document.getElementById('control-panel');
-            controlPanel.addEventListener('mousedown', (e) => e.stopPropagation());
+            setupControls();
+        }
+        
+        function setupControls() {
+            const sliders = document.querySelectorAll('input[type="range"]');
+            sliders.forEach(slider => {
+                slider.addEventListener('input', (e) => {
+                    const id = e.target.id;
+                    const value = Number(e.target.value);
+                    PARAMS[id] = value;
+                    const valueSpan = document.getElementById(`${id}-value`);
+                    if (valueSpan) {
+                         valueSpan.textContent = value.toFixed(id === 'noiseAmount' || id === 'strokeWidth' ? 2 : 0);
+                    }
+                    updateSliderTrack(e.target);
+                });
+                updateSliderTrack(slider);
+                const initialValueSpan = document.getElementById(`${slider.id}-value`);
+                if(initialValueSpan) {
+                    initialValueSpan.textContent = Number(slider.value).toFixed(slider.id === 'noiseAmount' || slider.id === 'strokeWidth' ? 2 : 0);
+                }
+            });
 
-            document.getElementById('repelDist').addEventListener('input', (e) => {
-                PARAMS.repelDist = Number(e.target.value);
-            });
-            document.getElementById('growthThreshold').addEventListener('input', (e) => {
-                PARAMS.growthThreshold = Number(e.target.value);
-            });
-            document.getElementById('noiseAmount').addEventListener('input', (e) => {
-                PARAMS.noiseAmount = Number(e.target.value);
-            });
-            document.getElementById('strokeWidth').addEventListener('input', (e) => {
-                PARAMS.strokeWidth = Number(e.target.value);
-            });
             document.getElementById('clear-btn').addEventListener('click', () => {
                 allLoops = [];
-                background(10);
+                background(bgColor);
             });
+            
+            // NEW: Pause/Play button logic
+            const pauseBtn = document.getElementById('pause-btn');
+            pauseBtn.addEventListener('click', () => {
+                isPaused = !isPaused;
+                if (isPaused) {
+                    noLoop();
+                    pauseBtn.textContent = 'Play';
+                } else {
+                    loop();
+                    pauseBtn.textContent = 'Pause';
+                }
+            });
+        }
+        
+        function updateSliderTrack(slider) {
+            const min = slider.min || 0;
+            const max = slider.max || 100;
+            const value = slider.value;
+            const progress = ((value - min) / (max - min)) * 100;
+            slider.style.setProperty('--range-progress', `${progress}%`);
         }
 
         function draw() {
-            background(10, 0.1);
+            background(30, 12, 93, 0.1); 
 
+            // 1. Build the Quadtree for this frame
+            let boundary = new Rectangle(width / 2, height / 2, width / 2, height / 2);
+            quadtree = new QuadTree(boundary, 4);
+            for (let loop of allLoops) {
+                for (let p of loop.points) {
+                    quadtree.insert(p);
+                }
+            }
+
+            // 2. Update and display all loops
             for (let loop of allLoops) {
                 loop.update();
                 loop.display();
@@ -374,17 +359,17 @@
         }
         
         function mousePressed() {
-            const panel = document.getElementById('control-panel').getBoundingClientRect();
-            if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return;
-            if (mouseX > panel.right || (mouseY > panel.bottom && mouseX > panel.left)) {
-                allLoops.push(new AnthozoaLoop(mouseX, mouseY));
+            if (isPaused) return; // Don't add new loops if paused
+            if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+                 allLoops.push(new AnthozoaLoop(mouseX, mouseY));
             }
         }
 
         function windowResized() {
-            const container = document.getElementById('canvas-container');
-            resizeCanvas(container.clientWidth, container.clientHeight);
-            background(10);
+            const container = document.getElementById('p5-canvas-placeholder');
+            const canvasSize = min(container.clientWidth, windowHeight * 0.7);
+            resizeCanvas(canvasSize, canvasSize);
+            background(bgColor);
         }
 
     </script>
