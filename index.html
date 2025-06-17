@@ -67,6 +67,13 @@
                 <input type="range" id="strokeWidth" min="1" max="10" value="2" step="0.5">
                 <span class="value-display" id="strokeWidth-value">2.0</span>
             </div>
+            <!-- Fill controls are now grouped together -->
+            <div class="control-group">
+                 <button id="fill-btn">Fill: OFF</button>
+                 <label for="fillOpacity" style="margin-left:15px;">Opacity</label>
+                 <input type="range" id="fillOpacity" min="0" max="1" value="0.4" step="0.01" disabled>
+                 <span class="value-display" id="fillOpacity-value">0.40</span>
+            </div>
             <div class="control-group">
                 <label for="bgColorPicker">Background</label>
                 <input type="color" id="bgColorPicker" value="#ede3df">
@@ -80,12 +87,11 @@
     </div>
 
     <footer id="site-footer">
-        <!-- UPDATED FOOTER -->
         <span><a href="https://www.mickeywilliamson3d.com/" target="_blank" rel="noopener noreferrer">Mickey Williamson</a></span>
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.05</span>
+        <span id="version-number">v0.08</span>
     </footer>
 
 
@@ -99,6 +105,8 @@
             strokeWidth: 2,
             wallRepel: false,
             boundaryMargin: 50,
+            fillLoops: false,
+            fillOpacity: 0.4, 
             initialPoints: 10,
             initialRadius: 15,
         };
@@ -242,9 +250,19 @@
 
             display() {
                 if (this.points.length < 3) return;
-                stroke(this.hue, 80, 85);
+
+                let strokeColor = color(this.hue, 80, 85);
+                
+                if (PARAMS.fillLoops) {
+                    // Use the same base color as the stroke, but with the specified opacity
+                    let fillColor = color(this.hue, 80, 85, PARAMS.fillOpacity);
+                    fill(fillColor);
+                } else {
+                    noFill();
+                }
+                stroke(strokeColor);
                 strokeWeight(PARAMS.strokeWidth);
-                noFill();
+
                 beginShape();
                 curveVertex(this.points[this.points.length - 1].x, this.points[this.points.length - 1].y);
                 for (let i = 0; i < this.points.length; i++) {
@@ -260,7 +278,7 @@
 
         function setup() {
             const container = document.getElementById('p5-canvas-placeholder');
-            const canvasSize = min(container.clientWidth, windowHeight * 0.75); // Adjusted size slightly
+            const canvasSize = min(container.clientWidth, windowHeight * 0.75);
             const canvas = createCanvas(canvasSize, canvasSize);
             canvas.parent('p5-canvas-placeholder');
             colorMode(HSB, 360, 100, 100, 1);
@@ -280,18 +298,17 @@
                     PARAMS[id] = value;
                     const valueSpan = document.getElementById(`${id}-value`);
                     if (valueSpan) {
-                         valueSpan.textContent = value.toFixed(id.includes('Amount') || id.includes('Width') ? 0 : 0);
+                         valueSpan.textContent = value;
                     }
                     updateSliderTrack(e.target);
                 });
                 updateSliderTrack(slider);
                 const initialValueSpan = document.getElementById(`${slider.id}-value`);
                 if(initialValueSpan) {
-                     initialValueSpan.textContent = Number(slider.value).toFixed(slider.id.includes('Amount') || slider.id.includes('Width') ? 0 : 0);
+                     initialValueSpan.textContent = slider.value;
                 }
             });
-            // Fix for sliders with decimals
-             document.querySelectorAll('#noiseAmount, #strokeWidth').forEach(s => {
+             document.querySelectorAll('#noiseAmount, #strokeWidth, #fillOpacity').forEach(s => {
                 const valueSpan = document.getElementById(`${s.id}-value`);
                 if(valueSpan) valueSpan.textContent = Number(s.value).toFixed(2);
                 s.addEventListener('input', (e) => {
@@ -316,13 +333,20 @@
                 isPaused = !isPaused;
                 if (isPaused) { noLoop(); pauseBtn.textContent = 'Play'; } else { loop(); pauseBtn.textContent = 'Pause'; }
             });
+            
+            const fillBtn = document.getElementById('fill-btn');
+            const fillOpacitySlider = document.getElementById('fillOpacity');
+            fillBtn.addEventListener('click', () => {
+                PARAMS.fillLoops = !PARAMS.fillLoops;
+                fillBtn.textContent = `Fill: ${PARAMS.fillLoops ? 'ON' : 'OFF'}`;
+                fillOpacitySlider.disabled = !PARAMS.fillLoops;
+            });
 
             const wallRepelBtn = document.getElementById('wall-repel-btn');
             const boundaryMarginSlider = document.getElementById('boundaryMargin');
             wallRepelBtn.addEventListener('click', () => {
                 PARAMS.wallRepel = !PARAMS.wallRepel;
                 wallRepelBtn.textContent = `Boundaries: ${PARAMS.wallRepel ? 'ON' : 'OFF'}`;
-                // Enable/disable margin slider based on wall repel state
                 boundaryMarginSlider.disabled = !PARAMS.wallRepel;
             });
 
@@ -362,7 +386,7 @@
 
         function windowResized() {
             const container = document.getElementById('p5-canvas-placeholder');
-            const canvasSize = min(container.clientWidth, windowHeight * 0.75); // Adjusted size slightly
+            const canvasSize = min(container.clientWidth, windowHeight * 0.75);
             resizeCanvas(canvasSize, canvasSize);
             background(bgColor);
         }
