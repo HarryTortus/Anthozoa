@@ -16,18 +16,6 @@
     <!-- Link to the external CSS file -->
     <link rel="stylesheet" href="anthozoa.css">
     
-    <style>
-        /* Small additional style for the new subtitle */
-        .subtitle {
-            font-size: 1.1em;
-            font-weight: 400;
-            color: #5a722d;
-            margin-top: -15px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-    </style>
-
 </head>
 <body>
     <h1 class="main-title">Anthozoa</h1>
@@ -254,7 +242,6 @@
                 let strokeColor = color(this.hue, 80, 85);
                 
                 if (PARAMS.fillLoops) {
-                    // Use the same base color as the stroke, but with the specified opacity
                     let fillColor = color(this.hue, 80, 85, PARAMS.fillOpacity);
                     fill(fillColor);
                 } else {
@@ -275,10 +262,26 @@
         }
 
         // === p5.js Core Functions === //
+        
+        // UPDATED: Function to calculate dynamic canvas size
+        function getCanvasSize() {
+             const container = document.getElementById('sketch-container');
+             const titleEl = document.querySelector('.main-title');
+             const subtitleEl = document.querySelector('.subtitle');
+             const controlsEl = document.querySelector('.controls');
+             const footerEl = document.querySelector('#site-footer');
+
+             const verticalPadding = 30; // Extra space
+             const reservedHeight = titleEl.offsetHeight + subtitleEl.offsetHeight + controlsEl.offsetHeight + footerEl.offsetHeight + verticalPadding;
+             
+             const availableHeight = window.innerHeight - reservedHeight;
+             const availableWidth = container.clientWidth;
+
+             return min(availableWidth, availableHeight);
+        }
 
         function setup() {
-            const container = document.getElementById('p5-canvas-placeholder');
-            const canvasSize = min(container.clientWidth, windowHeight * 0.75);
+            let canvasSize = getCanvasSize();
             const canvas = createCanvas(canvasSize, canvasSize);
             canvas.parent('p5-canvas-placeholder');
             colorMode(HSB, 360, 100, 100, 1);
@@ -385,8 +388,8 @@
         }
 
         function windowResized() {
-            const container = document.getElementById('p5-canvas-placeholder');
-            const canvasSize = min(container.clientWidth, windowHeight * 0.75);
+            // UPDATED: Use the new dynamic size calculation on resize
+            let canvasSize = getCanvasSize();
             resizeCanvas(canvasSize, canvasSize);
             background(bgColor);
         }
