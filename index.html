@@ -64,7 +64,7 @@
             </div>
             <div class="control-group">
                 <label for="bgColorPicker">Background</label>
-                <input type="color" id="bgColorPicker" value="#ede3df">
+                <input type="color" id="bgColorPicker" value="#ffffff">
             </div>
              <div class="control-group action-buttons">
                 <button id="pause-btn">Pause</button>
@@ -79,7 +79,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.11</span>
+        <span id="version-number">v0.12</span>
     </footer>
 
 
@@ -379,9 +379,7 @@
             noiseOffset += 0.002;
         }
 
-        // UPDATED: More robust input handling
         function mousePressed() {
-            // Only plant if the click is on the canvas
             if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
                 if (isPaused) return;
                 allLoops.push(new AnthozoaLoop(mouseX, mouseY));
@@ -389,13 +387,11 @@
         }
 
         function touchStarted() {
-            // Only plant if the touch is on the canvas
             if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
                 if (isPaused) return;
                 allLoops.push(new AnthozoaLoop(mouseX, mouseY));
-                return false; // Prevent default browser actions (like scrolling and emulating mouse events)
+                return false; 
             }
-            // If touch is outside the canvas, do nothing and let the browser handle it (for controls)
         }
 
         function windowResized() {
