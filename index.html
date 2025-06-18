@@ -79,7 +79,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.10</span>
+        <span id="version-number">v0.11</span>
     </footer>
 
 
@@ -379,25 +379,23 @@
             noiseOffset += 0.002;
         }
 
-        // NEW: Centralized function to plant a seed
-        function plantSeed() {
-            if (isPaused) return;
-
-            // Check if the coordinates are within the canvas bounds.
+        // UPDATED: More robust input handling
+        function mousePressed() {
+            // Only plant if the click is on the canvas
             if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-                 allLoops.push(new AnthozoaLoop(mouseX, mouseY));
+                if (isPaused) return;
+                allLoops.push(new AnthozoaLoop(mouseX, mouseY));
             }
         }
-        
-        // UPDATED: mousePressed now only handles mouse clicks
-        function mousePressed() {
-            plantSeed();
-        }
 
-        // NEW: touchStarted handles touch events and prevents emulated mouse events
         function touchStarted() {
-            plantSeed();
-            return false; // Prevents the browser from firing mouse events as well
+            // Only plant if the touch is on the canvas
+            if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+                if (isPaused) return;
+                allLoops.push(new AnthozoaLoop(mouseX, mouseY));
+                return false; // Prevent default browser actions (like scrolling and emulating mouse events)
+            }
+            // If touch is outside the canvas, do nothing and let the browser handle it (for controls)
         }
 
         function windowResized() {
