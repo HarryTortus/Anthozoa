@@ -15,8 +15,8 @@ body {
     align-items: center;
     box-sizing: border-box;
     height: 100%;
-    padding: 20px; /* Set main page padding */
-    gap: 15px; /* Space between elements */
+    padding: 20px; /* Symmetrical padding on all sides */
+    gap: 20px; /* Consistent gap between all elements */
 }
 
 .main-title {
@@ -35,7 +35,7 @@ body {
     font-weight: 400;
     color: #5a722d;
     margin: 0;
-    margin-top: -5px; /* Small adjustment to bring it closer to title */
+    margin-top: -10px; /* Small adjustment to bring it closer to title */
     text-align: center;
     flex-shrink: 0;
 }
@@ -115,8 +115,8 @@ canvas {
     width: 100%; font-family: 'Oswald', sans-serif; font-size: 0.8em;
     color: #3b4c1a; flex-shrink: 0; box-sizing: border-box;
     display: flex; justify-content: center; align-items: center; flex-wrap:wrap; gap: 4px 10px;
-    margin-top: auto; /* Pushes footer to the bottom */
 }
+/* UPDATED FOOTER LINK STYLES */
 #site-footer a {
     color: #3b4c1a;
     text-decoration: none;
