@@ -1,10 +1,10 @@
-/* anthozoa.css - Styles based on the last working Line Flow */
+/* anthozoa.css - v0.32 Layout Refactor */
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden; /* Prevent scrolling */
+    overflow: hidden; /* Prevent all scrolling */
     font-family: 'Oswald', sans-serif;
     background-color: #ede3df;
 }
@@ -12,11 +12,10 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    height: 100vh; /* Ensure body takes full viewport height */
     box-sizing: border-box;
-    height: 100%;
-    padding: 10px; /* Reduced symmetrical padding */
-    gap: 10px; /* Reduced consistent gap for a tighter layout */
+    padding: 15px;
+    gap: 15px; /* Consistent spacing between all elements */
 }
 
 .main-title {
@@ -27,17 +26,16 @@ body {
     text-align: center;
     letter-spacing: 1.5px;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
-    flex-shrink: 0;
+    flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .subtitle {
     font-size: 1.1em;
     font-weight: 400;
     color: #5a722d;
-    margin: 0;
-    margin-top: -5px; /* Small adjustment to bring it closer to title */
+    margin: -5px 0 0 0; /* Tighten up space below title */
     text-align: center;
-    flex-shrink: 0;
+    flex-shrink: 0; /* Prevent subtitle from shrinking */
 }
 
 #sketch-container {
@@ -45,10 +43,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-grow: 1;
+    flex-grow: 1; /* This is the key: makes the container fill available space */
     box-sizing: border-box;
     overflow: hidden;
-    min-height: 0; /* Important for flex-grow in a flex column */
+    min-height: 0; /* A flexbox trick to prevent overflow issues */
 }
 
 #p5-canvas-placeholder {
@@ -76,7 +74,7 @@ canvas {
     font-family: 'Oswald', sans-serif; font-size: 14px;
     box-shadow: 0 3px 8px rgba(0,0,0,0.2);
     width: 100%;
-    box-sizing: border-box; flex-shrink: 0;
+    box-sizing: border-box; flex-shrink: 0; /* Prevent controls from shrinking */
     overflow-x: auto;
 }
 .controls .control-wrapper { display: flex; flex-wrap: wrap; gap: 18px; width: 100%; justify-content: center; align-items: center;}
@@ -127,7 +125,7 @@ canvas {
 }
 .value-display { display: inline-block; min-width: 35px; text-align: left; margin-left: 2px; font-weight: normal; color: #f0f2f5; }
 
-/* NEW: Styles for disabled control groups */
+/* Styles for disabled control groups */
 .control-group.disabled-group {
     opacity: 0.5;
     cursor: not-allowed;
@@ -137,6 +135,7 @@ canvas {
     width: 100%; font-family: 'Oswald', sans-serif; font-size: 0.8em;
     color: #3b4c1a; flex-shrink: 0; box-sizing: border-box;
     display: flex; justify-content: center; align-items: center; flex-wrap:wrap; gap: 4px 10px;
+    padding-top: 5px; /* Add a little space above the footer */
 }
 
 #site-footer a {
