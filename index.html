@@ -84,7 +84,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.36</span>
+        <span id="version-number">v0.37</span>
     </footer>
 
 
@@ -180,7 +180,38 @@
                     }
                 }
                 
-                let setCanvasSize; // Declare here so it's in scope for setupControls
+                let setCanvasSize;
+
+                const getCanvasDimensions = (mode) => {
+                    const sketchContainer = document.getElementById('sketch-container');
+                    const availableWidth = sketchContainer.clientWidth;
+                    const availableHeight = sketchContainer.clientHeight;
+                    let newWidth, newHeight;
+
+                    switch (mode) {
+                        case '16:9':
+                            if (availableWidth / availableHeight > 16 / 9) { newHeight = availableHeight; newWidth = availableHeight * 16 / 9; } 
+                            else { newWidth = availableWidth; newHeight = availableWidth * 9 / 16; }
+                            break;
+                        case '9:16':
+                            if (availableWidth / availableHeight > 9 / 16) { newHeight = availableHeight; newWidth = availableHeight * 9 / 16; } 
+                            else { newWidth = availableWidth; newHeight = availableWidth * 16 / 9; }
+                            break;
+                        case '1:1':
+                            newWidth = newHeight = Math.min(availableWidth, availableHeight);
+                            break;
+                        case 'full':
+                            newWidth = window.innerWidth;
+                            newHeight = window.innerHeight;
+                            break;
+                        case 'fit':
+                        default:
+                            newWidth = availableWidth;
+                            newHeight = availableHeight;
+                            break;
+                    }
+                    return { w: Math.floor(newWidth), h: Math.floor(newHeight) };
+                };
 
                 const redrawStatic = () => { p.background(bgColor); for (let loop of allLoops) loop.display(); }
                 const updateSliderTrack = (slider) => { const min = slider.min || 0, max = slider.max || 100, val = slider.value; slider.style.setProperty('--range-progress', `${((val - min) / (max - min)) * 100}%`); }
@@ -240,37 +271,6 @@
                 }
                 
                 p.setup = () => {
-                    const getCanvasDimensions = (mode) => {
-                        const sketchContainer = document.getElementById('sketch-container');
-                        const availableWidth = sketchContainer.clientWidth;
-                        const availableHeight = sketchContainer.clientHeight;
-                        let newWidth, newHeight;
-
-                        switch (mode) {
-                            case '16:9':
-                                if (availableWidth / availableHeight > 16 / 9) { newHeight = availableHeight; newWidth = availableHeight * 16 / 9; } 
-                                else { newWidth = availableWidth; newHeight = availableWidth * 9 / 16; }
-                                break;
-                            case '9:16':
-                                if (availableWidth / availableHeight > 9 / 16) { newHeight = availableHeight; newWidth = availableHeight * 9 / 16; } 
-                                else { newWidth = availableWidth; newHeight = availableWidth * 16 / 9; }
-                                break;
-                            case '1:1':
-                                newWidth = newHeight = Math.min(availableWidth, availableHeight);
-                                break;
-                            case 'full':
-                                newWidth = window.innerWidth;
-                                newHeight = window.innerHeight;
-                                break;
-                            case 'fit':
-                            default:
-                                newWidth = availableWidth;
-                                newHeight = availableHeight;
-                                break;
-                        }
-                        return { w: newWidth, h: newHeight };
-                    };
-                    
                     setCanvasSize = (mode) => {
                         PARAMS.canvasMode = mode;
                         const dims = getCanvasDimensions(mode);
