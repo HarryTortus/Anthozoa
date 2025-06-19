@@ -1,4 +1,4 @@
-/* anthozoa.css - v0.40 Layout Refactor */
+/* anthozoa.css - v0.42 Layout Refactor */
 html, body {
     margin: 0;
     padding: 0;
@@ -12,7 +12,7 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
-    height: 100%; /* Use 100% instead of 100vh for better mobile compatibility */
+    height: 100%; /* Use 100% for better mobile compatibility */
     box-sizing: border-box;
     padding: 10px;
     gap: 10px; /* Consistent spacing between all elements */
@@ -20,7 +20,7 @@ body {
 
 .main-title {
     font-weight: 700;
-    font-size: 2.8em;
+    font-size: 2.5em; /* Slightly smaller for mobile */
     color: #3b4c1a;
     margin: 0;
     text-align: center;
@@ -65,10 +65,10 @@ canvas {
 }
 
 .controls {
-    display: flex; flex-direction: column; gap: 18px;
+    display: flex; flex-direction: column; gap: 15px;
     background: rgba(76, 97, 33, 0.9);
     border-radius: 10px;
-    padding: 15px 20px;
+    padding: 10px 15px;
     align-items: center; justify-content: center;
     color: #f0f2f5;
     font-family: 'Oswald', sans-serif; font-size: 14px;
@@ -77,7 +77,7 @@ canvas {
     box-sizing: border-box; flex-shrink: 0;
     overflow-x: auto;
 }
-.controls .control-wrapper { display: flex; flex-wrap: wrap; gap: 18px; width: 100%; justify-content: center; align-items: center;}
+.controls .control-wrapper { display: flex; flex-wrap: wrap; gap: 15px; width: 100%; justify-content: center; align-items: center;}
 
 .controls .control-group {
     display: flex;
@@ -85,8 +85,8 @@ canvas {
     transition: opacity 0.3s ease;
 }
 
-.controls::-webkit-scrollbar { height: 10px; background: #ede3df; border-radius: 6px; }
-.controls::-webkit-scrollbar-thumb { background: #3b4c1a; border-radius: 6px; }
+.controls::-webkit-scrollbar { height: 8px; background: #ede3df; border-radius: 4px; }
+.controls::-webkit-scrollbar-thumb { background: #3b4c1a; border-radius: 4px; }
 .controls::-webkit-scrollbar-thumb:hover { background: #4c6121; }
 
 .controls label {
@@ -107,9 +107,9 @@ canvas {
 .controls input[type="color"] { border: 1px solid #f0f2f5; background: transparent; width: 30px; height: 30px; border-radius: 4px; margin-left: 4px; padding:0; cursor:pointer;}
 
 .controls button {
-    background: rgba(59, 76, 26, 0.75); /* Semi-transparent background */
+    background: rgba(59, 76, 26, 0.75);
     color: #ede3df;
-    border: 1px solid rgba(237, 227, 223, 0.4); /* Subtle light border */
+    border: 1px solid rgba(237, 227, 223, 0.4);
     border-radius: 6px;
     padding: 8px 16px;
     font-size: 14px;
@@ -120,12 +120,11 @@ canvas {
     transition: background 0.3s ease, border-color 0.3s ease;
 }
 .controls button:hover {
-    background: rgba(76, 97, 33, 0.9); /* More opaque on hover */
+    background: rgba(76, 97, 33, 0.9);
     border-color: rgba(237, 227, 223, 0.7);
 }
 .value-display { display: inline-block; min-width: 35px; text-align: left; margin-left: 2px; font-weight: normal; color: #f0f2f5; }
 
-/* Styles for disabled control groups */
 .control-group.disabled-group {
     opacity: 0.5;
     cursor: not-allowed;
@@ -137,54 +136,24 @@ canvas {
     padding: 2px;
     display: flex;
 }
+.controls .canvas-size-group button { background: transparent; border: none; margin: 0; padding: 6px 12px; }
+.controls .canvas-size-group button.active { background: #3b4c1a; border-radius: 6px; }
 
-.controls .canvas-size-group button {
-    background: transparent;
-    border: none;
-    margin: 0;
-    padding: 6px 12px;
-}
-
-.controls .canvas-size-group button.active {
-    background: #3b4c1a;
-    border-radius: 6px;
-}
-
-/* Styles for true fullscreen mode */
-body.fullscreen-active > *:not(#sketch-container) {
-    display: none !important;
-}
-body.fullscreen-active {
-    padding: 0 !important;
-    gap: 0 !important;
-}
-body.fullscreen-active #sketch-container {
-    padding: 0 !important;
-}
+body.fullscreen-active > *:not(#sketch-container) { display: none !important; }
+body.fullscreen-active { padding: 0 !important; gap: 0 !important; }
+body.fullscreen-active #sketch-container { padding: 0 !important; }
 
 #site-footer {
     width: 100%; font-family: 'Oswald', sans-serif; font-size: 0.8em;
     color: #3b4c1a; flex-shrink: 0; box-sizing: border-box;
     display: flex; justify-content: center; align-items: center; flex-wrap:wrap; gap: 4px 10px;
 }
-
-#site-footer a {
-    color: #3b4c1a;
-    text-decoration: none;
-    font-weight: bold;
-}
-#site-footer a:hover {
-    text-decoration: underline;
-}
+#site-footer a { color: #3b4c1a; text-decoration: none; font-weight: bold; }
+#site-footer a:hover { text-decoration: underline; }
 
 @media (max-width: 768px) {
-     .controls .control-wrapper {
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-     }
+     .controls .control-wrapper { flex-direction: column; align-items: center; gap: 15px; }
 }
-
 @media (max-width: 420px) {
     .main-title { font-size: 1.7em;}
 }
