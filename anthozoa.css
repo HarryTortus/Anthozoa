@@ -1,4 +1,4 @@
-/* anthozoa.css - v0.32 Layout Refactor */
+/* anthozoa.css - v0.34 Layout Refactor */
 html, body {
     margin: 0;
     padding: 0;
@@ -14,8 +14,8 @@ body {
     flex-direction: column;
     height: 100vh; /* Ensure body takes full viewport height */
     box-sizing: border-box;
-    padding: 15px;
-    gap: 15px; /* Consistent spacing between all elements */
+    padding: 10px;
+    gap: 10px; /* Consistent spacing between all elements */
 }
 
 .main-title {
@@ -131,11 +131,42 @@ canvas {
     cursor: not-allowed;
 }
 
+/* NEW: Styles for canvas size controls */
+.controls .canvas-size-group {
+    border: 1px solid rgba(237, 227, 223, 0.4);
+    border-radius: 8px;
+    padding: 2px;
+    display: flex;
+}
+
+.controls .canvas-size-group button {
+    background: transparent;
+    border: none;
+    margin: 0;
+    padding: 6px 12px;
+}
+
+.controls .canvas-size-group button.active {
+    background: #3b4c1a;
+    border-radius: 6px;
+}
+
+/* NEW: Styles for true fullscreen mode */
+body.fullscreen-active > *:not(#sketch-container) {
+    display: none !important;
+}
+body.fullscreen-active {
+    padding: 0 !important;
+    gap: 0 !important;
+}
+body.fullscreen-active #sketch-container {
+    padding: 0 !important;
+}
+
 #site-footer {
     width: 100%; font-family: 'Oswald', sans-serif; font-size: 0.8em;
     color: #3b4c1a; flex-shrink: 0; box-sizing: border-box;
     display: flex; justify-content: center; align-items: center; flex-wrap:wrap; gap: 4px 10px;
-    padding-top: 5px; /* Add a little space above the footer */
 }
 
 #site-footer a {
