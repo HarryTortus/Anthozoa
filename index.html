@@ -78,7 +78,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.14</span>
+        <span id="version-number">v0.15</span>
     </footer>
 
 
@@ -266,10 +266,8 @@
 
         // === p5.js Core Functions === //
         
-        // UPDATED: Function to calculate dynamic canvas size
         function getCanvasSize() {
              const sketchContainer = document.getElementById('sketch-container');
-             // Use the container's dimensions which respect the new body padding
              const availableWidth = sketchContainer.clientWidth;
              const availableHeight = sketchContainer.clientHeight;
              return min(availableWidth, availableHeight);
