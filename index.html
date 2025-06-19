@@ -78,7 +78,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.13</span>
+        <span id="version-number">v0.14</span>
     </footer>
 
 
@@ -142,7 +142,6 @@
             }
 
             grow() {
-                // Invert the growth slider's value so high means more growth.
                 const minThreshold = 5;
                 const maxThreshold = 40;
                 let invertedThreshold = map(PARAMS.growthThreshold, minThreshold, maxThreshold, maxThreshold, minThreshold);
@@ -267,19 +266,12 @@
 
         // === p5.js Core Functions === //
         
+        // UPDATED: Function to calculate dynamic canvas size
         function getCanvasSize() {
-             const container = document.getElementById('sketch-container');
-             const titleEl = document.querySelector('.main-title');
-             const subtitleEl = document.querySelector('.subtitle');
-             const controlsEl = document.querySelector('.controls');
-             const footerEl = document.querySelector('#site-footer');
-
-             const verticalPadding = 30; // Extra space
-             const reservedHeight = titleEl.offsetHeight + subtitleEl.offsetHeight + controlsEl.offsetHeight + footerEl.offsetHeight + verticalPadding;
-             
-             const availableHeight = window.innerHeight - reservedHeight;
-             const availableWidth = container.clientWidth;
-
+             const sketchContainer = document.getElementById('sketch-container');
+             // Use the container's dimensions which respect the new body padding
+             const availableWidth = sketchContainer.clientWidth;
+             const availableHeight = sketchContainer.clientHeight;
              return min(availableWidth, availableHeight);
         }
 
