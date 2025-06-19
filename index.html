@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Anthozoa</title>
     
-    <!-- Import the p5.js library -->
+    <!-- Import p5.js and the NEW gif.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
     
     <!-- Import Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -67,7 +68,8 @@
              <div class="control-group action-buttons">
                 <button id="pause-btn">Pause</button>
                 <button id="clear-btn">Clear Canvas</button>
-                <button id="save-btn">Save Canvas</button>
+                <button id="save-btn">Save Image</button>
+                <button id="record-btn">Record GIF</button>
             </div>
              <div class="control-group canvas-size-group">
                 <button id="size-square-btn" class="active">Square</button>
@@ -82,7 +84,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.44</span>
+        <span id="version-number">v0.53</span>
     </footer>
 
 
@@ -102,6 +104,10 @@
                 let bgColor;
                 let isPaused = false;
                 let quadtree;
+
+                // Variables for recording
+                let gif;
+                let isRecording = false;
                 
                 class Point { constructor(x, y) { this.x = x; this.y = y; } }
                 class Rectangle { constructor(x, y, w, h) { this.x = x; this.y = y; this.w = w; this.h = h; } contains(point) { return (point.x >= this.x - this.w && point.x < this.x + this.w && point.y >= this.y - this.h && point.y < this.y + this.h); } intersects(range) { let xDist = Math.abs(range.x - this.x); let yDist = Math.abs(range.y - this.y); let r = range.r; let w = this.w; let h = this.h; let edges = Math.pow(xDist - w, 2) + Math.pow(yDist - h, 2); if (xDist > (r + w) || yDist > (r + h)) return false; if (xDist <= w || yDist <= h) return true; return edges <= r * r; } }
@@ -183,17 +189,9 @@
                     const availableHeight = sketchContainer.clientHeight;
                     let newWidth, newHeight;
                     switch (mode) {
-                        case 'square':
-                            newWidth = newHeight = Math.min(availableWidth, availableHeight);
-                            break;
-                        case 'full':
-                            newWidth = window.innerWidth;
-                            newHeight = window.innerHeight;
-                            break;
-                        case 'fit':
-                        default:
-                            newWidth = availableWidth; newHeight = availableHeight;
-                            break;
+                        case 'square': newWidth = newHeight = Math.min(availableWidth, availableHeight); break;
+                        case 'full': newWidth = window.innerWidth; newHeight = window.innerHeight; break;
+                        case 'fit': default: newWidth = availableWidth; newHeight = availableHeight; break;
                     }
                     return { w: Math.floor(newWidth), h: Math.floor(newHeight) };
                 };
@@ -250,12 +248,42 @@
                     const boundaryMarginSlider = document.getElementById('boundaryMargin');
                     wallRepelBtn.addEventListener('click', () => { PARAMS.wallRepel = !PARAMS.wallRepel; wallRepelBtn.textContent = `Boundaries: ${PARAMS.wallRepel ? 'ON' : 'OFF'}`; boundaryMarginSlider.disabled = !PARAMS.wallRepel; boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel); if (isPaused) redrawStatic(); });
                     boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel);
-                    
-                    // UPDATED Save Button logic
                     document.getElementById('save-btn').addEventListener('click', () => {
                         let now = new Date();
                         let timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
                         p.saveCanvas(`anthozoa_${timestamp}`, 'png');
+                    });
+                    
+                    const recordBtn = document.getElementById('record-btn');
+                    recordBtn.addEventListener('click', () => {
+                        if (!isRecording) {
+                            isRecording = true;
+                            gif = new GIF({
+                                workers: 2,
+                                quality: 10,
+                                workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+                            });
+                            gif.on('finished', function(blob) {
+                                let a = document.createElement('a');
+                                a.href = URL.createObjectURL(blob);
+                                let now = new Date();
+                                let timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+                                a.download = `anthozoa_${timestamp}.gif`;
+                                a.click();
+                                recordBtn.textContent = 'Record GIF';
+                                recordBtn.style.backgroundColor = '';
+                                recordBtn.disabled = false;
+                                if(isPaused) p.noLoop();
+                            });
+                            recordBtn.textContent = 'Recording...';
+                            recordBtn.style.backgroundColor = '#e60000';
+                            if (isPaused) { p.loop(); }
+                        } else {
+                            isRecording = false;
+                            recordBtn.textContent = 'Compiling...';
+                            recordBtn.disabled = true;
+                            gif.render();
+                        }
                     });
                 }
                 
@@ -263,12 +291,15 @@
                     setCanvasSize = (mode) => {
                         PARAMS.canvasMode = mode;
                         const dims = getCanvasDimensions(mode);
-                        p.resizeCanvas(dims.w, dims.h);
+                        // Add willReadFrequently attribute for performance with recording
+                        const canvas = p.createCanvas(dims.w, dims.h, { willReadFrequently: true });
+                        canvas.parent('p5-canvas-placeholder');
+                        p.colorMode(p.HSB, 360, 100, 100, 1); // Reset color mode after resize
                         if (isPaused) redrawStatic();
                     };
 
                     const dims = getCanvasDimensions(PARAMS.canvasMode);
-                    p.createCanvas(dims.w, dims.h).parent('p5-canvas-placeholder');
+                    p.createCanvas(dims.w, dims.h, { willReadFrequently: true }).parent('p5-canvas-placeholder');
                     p.colorMode(p.HSB, 360, 100, 100, 1);
                     bgColor = p.color(document.getElementById('bgColorPicker').value);
                     p.background(bgColor); 
@@ -285,6 +316,10 @@
                     allLoops.forEach(loop => loop.points.forEach(pt => quadtree.insert(new Point(pt.x, pt.y))));
                     allLoops.forEach(loop => { loop.update(); loop.display(); });
                     noiseOffset += 0.002;
+
+                    if (isRecording) {
+                        gif.addFrame(p.canvas, {copy: true, delay: 1000 / 30});
+                    }
                 };
 
                 p.mousePressed = () => { if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height && !isPaused) allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY)); };
