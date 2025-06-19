@@ -14,8 +14,9 @@ body {
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
-    padding: 15px; /* Unified padding for the whole page */
-    gap: 10px; /* Adds space between header, canvas, controls, and footer */
+    height: 100%;
+    padding: 20px; /* Set main page padding */
+    gap: 15px; /* Space between elements */
 }
 
 .main-title {
@@ -35,7 +36,6 @@ body {
     color: #5a722d;
     margin: 0;
     margin-top: -5px; /* Small adjustment to bring it closer to title */
-    margin-bottom: 5px;
     text-align: center;
     flex-shrink: 0;
 }
@@ -55,6 +55,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 canvas {
@@ -115,7 +117,6 @@ canvas {
     display: flex; justify-content: center; align-items: center; flex-wrap:wrap; gap: 4px 10px;
     margin-top: auto; /* Pushes footer to the bottom */
 }
-/* NEW FOOTER LINK STYLES */
 #site-footer a {
     color: #3b4c1a;
     text-decoration: none;
