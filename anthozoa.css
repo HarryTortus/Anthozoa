@@ -15,8 +15,8 @@ body {
     align-items: center;
     box-sizing: border-box;
     height: 100%;
-    padding: 20px; /* Symmetrical padding on all sides */
-    gap: 20px; /* Consistent gap between all elements */
+    padding: 15px; /* Reduced symmetrical padding */
+    gap: 15px; /* Reduced consistent gap for a tighter layout */
 }
 
 .main-title {
@@ -35,7 +35,6 @@ body {
     font-weight: 400;
     color: #5a722d;
     margin: 0;
-    margin-top: -10px; /* Small adjustment to bring it closer to title */
     text-align: center;
     flex-shrink: 0;
 }
