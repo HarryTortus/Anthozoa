@@ -82,7 +82,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.43</span>
+        <span id="version-number">v0.44</span>
     </footer>
 
 
@@ -222,7 +222,7 @@
                         if (!document.fullscreenElement) {
                             document.body.classList.remove('fullscreen-active');
                             setTimeout(() => {
-                                setCanvasSize('square'); // Revert to square mode
+                                setCanvasSize('square');
                                 document.querySelector('.canvas-size-group button.active').classList.remove('active');
                                 document.getElementById('size-square-btn').classList.add('active');
                             }, 50);
@@ -250,7 +250,13 @@
                     const boundaryMarginSlider = document.getElementById('boundaryMargin');
                     wallRepelBtn.addEventListener('click', () => { PARAMS.wallRepel = !PARAMS.wallRepel; wallRepelBtn.textContent = `Boundaries: ${PARAMS.wallRepel ? 'ON' : 'OFF'}`; boundaryMarginSlider.disabled = !PARAMS.wallRepel; boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel); if (isPaused) redrawStatic(); });
                     boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel);
-                    document.getElementById('save-btn').addEventListener('click', () => p.saveCanvas('anthozoa', 'png'));
+                    
+                    // UPDATED Save Button logic
+                    document.getElementById('save-btn').addEventListener('click', () => {
+                        let now = new Date();
+                        let timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+                        p.saveCanvas(`anthozoa_${timestamp}`, 'png');
+                    });
                 }
                 
                 p.setup = () => {
