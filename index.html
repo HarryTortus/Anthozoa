@@ -78,348 +78,354 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.31</span>
+        <span id="version-number">v0.33</span>
     </footer>
 
 
     <script>
-        // === GLOBAL PARAMETERS === //
-        let PARAMS = {
-            repelDist: 122,
-            growthRate: 80, // UI-friendly 0-100 value. High means more growth.
-            simplificationThreshold: 1, // Hardcoded for best results.
-            noiseAmount: 0.6,
-            strokeWidth: 1,
-            wallRepel: true,
-            boundaryMargin: 0, 
-            fillLoops: true,
-            fillOpacity: 0.5, 
-            initialPoints: 10,
-            initialRadius: 15,
-        };
+        // Use window.onload to ensure all CSS and elements are loaded before we run the script
+        window.onload = function() {
+            
+            // --- p5.js Sketch running in "Instance Mode" --- //
+            const sketch = (p) => {
 
-        let allLoops = [];
-        let noiseOffset = 0;
-        let bgColor;
-        let isPaused = false;
-        let quadtree;
-        
-        // === OPTIMIZATION: QUADTREE IMPLEMENTATION === //
-        class Point {
-            constructor(x, y, owner) { this.x = x; this.y = y; this.owner = owner; }
-        }
-        class Rectangle {
-            constructor(x, y, w, h) { this.x = x; this.y = y; this.w = w; this.h = h; }
-            contains(point) { return (point.x >= this.x - this.w && point.x < this.x + this.w && point.y >= this.y - this.h && point.y < this.y + this.h); }
-            intersects(range) { let xDist = Math.abs(range.x - this.x); let yDist = Math.abs(range.y - this.y); let r = range.r; let w = this.w; let h = this.h; let edges = Math.pow(xDist - w, 2) + Math.pow(yDist - h, 2); if (xDist > (r + w) || yDist > (r + h)) return false; if (xDist <= w || yDist <= h) return true; return edges <= r * r; }
-        }
-        class QuadTree {
-            constructor(boundary, capacity) { this.boundary = boundary; this.capacity = capacity; this.points = []; this.divided = false; }
-            subdivide() { let x = this.boundary.x; let y = this.boundary.y; let w = this.boundary.w / 2; let h = this.boundary.h / 2; let ne = new Rectangle(x + w, y - h, w, h); this.northeast = new QuadTree(ne, this.capacity); let nw = new Rectangle(x - w, y - h, w, h); this.northwest = new QuadTree(nw, this.capacity); let se = new Rectangle(x + w, y + h, w, h); this.southeast = new QuadTree(se, this.capacity); let sw = new Rectangle(x - w, y + h, w, h); this.southwest = new QuadTree(sw, this.capacity); this.divided = true; }
-            insert(point) { if (!this.boundary.contains(point)) { return false; } if (this.points.length < this.capacity) { this.points.push(point); return true; } if (!this.divided) { this.subdivide(); } this.northeast.insert(point) || this.northwest.insert(point) || this.southeast.insert(point) || this.southwest.insert(point); }
-            query(range, found) { if (!found) { found = []; } if (!this.boundary.intersects(range)) { return found; } for (let p of this.points) { const d = Math.sqrt(Math.pow(p.x - range.x, 2) + Math.pow(p.y - range.y, 2)); if (d < range.r) { found.push(p); } } if (this.divided) { this.northwest.query(range, found); this.northeast.query(range, found); this.southwest.query(range, found); this.southeast.query(range, found); } return found; }
-        }
+                // === GLOBAL PARAMETERS === //
+                let PARAMS = {
+                    repelDist: 122,
+                    growthRate: 80, 
+                    simplificationThreshold: 1, 
+                    noiseAmount: 0.6,
+                    strokeWidth: 1,
+                    wallRepel: true,
+                    boundaryMargin: 0, 
+                    fillLoops: true,
+                    fillOpacity: 0.5, 
+                    initialPoints: 10,
+                    initialRadius: 15,
+                };
 
-        // === p5.js SKETCH === //
-        class AnthozoaLoop {
-            constructor(x, y) {
-                this.points = [];
-                this.hue = random(360);
-                this.noiseSeed = random(1000);
-
-                for (let i = 0; i < PARAMS.initialPoints; i++) {
-                    let angle = map(i, 0, PARAMS.initialPoints, 0, TWO_PI);
-                    let px = x + cos(angle) * PARAMS.initialRadius;
-                    let py = y + sin(angle) * PARAMS.initialRadius;
-                    this.points.push(createVector(px, py));
-                }
-            }
-
-            update() {
-                this.movePoints();
-                this.grow();
-                this.simplify();
-            }
-
-            grow() {
-                // A high UI value (0-100) should correspond to a LOW logic threshold, causing more growth.
-                let logicThreshold = map(PARAMS.growthRate, 0, 100, 40, 5);
+                let allLoops = [];
+                let noiseOffset = 0;
+                let bgColor;
+                let isPaused = false;
+                let quadtree;
                 
-                for (let i = this.points.length - 1; i >= 0; i--) {
-                    let p1 = this.points[i];
-                    let p2 = this.points[(i + 1) % this.points.length];
-                    let d = p5.Vector.dist(p1, p2);
-
-                    if (d > logicThreshold) {
-                        let midPoint = p5.Vector.lerp(p1, p2, 0.5);
-                        this.points.splice(i + 1, 0, midPoint);
-                    }
+                // === OPTIMIZATION: QUADTREE IMPLEMENTATION === //
+                class Point {
+                    constructor(x, y, owner) { this.x = x; this.y = y; this.owner = owner; }
                 }
-            }
-            
-            simplify() {
-                if (this.points.length <= PARAMS.initialPoints) return;
-
-                for (let i = this.points.length - 1; i >= 0; i--) {
-                    let p1 = this.points[i];
-                    let p2 = this.points[(i + 1) % this.points.length];
-                    let d = p5.Vector.dist(p1, p2);
-                    if (d < PARAMS.simplificationThreshold) {
-                         this.points.splice(i, 1);
-                    }
+                class Rectangle {
+                    constructor(x, y, w, h) { this.x = x; this.y = y; this.w = w; this.h = h; }
+                    contains(point) { return (point.x >= this.x - this.w && point.x < this.x + this.w && point.y >= this.y - this.h && point.y < this.y + this.h); }
+                    intersects(range) { let xDist = Math.abs(range.x - this.x); let yDist = Math.abs(range.y - this.y); let r = range.r; let w = this.w; let h = this.h; let edges = Math.pow(xDist - w, 2) + Math.pow(yDist - h, 2); if (xDist > (r + w) || yDist > (r + h)) return false; if (xDist <= w || yDist <= h) return true; return edges <= r * r; }
                 }
-            }
+                class QuadTree {
+                    constructor(boundary, capacity) { this.boundary = boundary; this.capacity = capacity; this.points = []; this.divided = false; }
+                    subdivide() { let x = this.boundary.x; let y = this.boundary.y; let w = this.boundary.w / 2; let h = this.boundary.h / 2; let ne = new Rectangle(x + w, y - h, w, h); this.northeast = new QuadTree(ne, this.capacity); let nw = new Rectangle(x - w, y - h, w, h); this.northwest = new QuadTree(nw, this.capacity); let se = new Rectangle(x + w, y + h, w, h); this.southeast = new QuadTree(se, this.capacity); let sw = new Rectangle(x - w, y + h, w, h); this.southwest = new QuadTree(sw, this.capacity); this.divided = true; }
+                    insert(point) { if (!this.boundary.contains(point)) { return false; } if (this.points.length < this.capacity) { this.points.push(point); return true; } if (!this.divided) { this.subdivide(); } this.northeast.insert(point) || this.northwest.insert(point) || this.southeast.insert(point) || this.southwest.insert(point); }
+                    query(range, found) { if (!found) { found = []; } if (!this.boundary.intersects(range)) { return found; } for (let pt of this.points) { const d = Math.sqrt(Math.pow(pt.x - range.x, 2) + Math.pow(pt.y - range.y, 2)); if (d < range.r) { found.push(pt); } } if (this.divided) { this.northwest.query(range, found); this.northeast.query(range, found); this.southwest.query(range, found); this.southeast.query(range, found); } return found; }
+                }
 
-            movePoints() {
-                let newPositions = [];
-                for (let i = 0; i < this.points.length; i++) {
-                    let p = this.points[i];
-                    
-                    let repulsion = this.getRepulsionVector(p);
-                    repulsion.mult(2.0);
+                // === p5.js SKETCH === //
+                class AnthozoaLoop {
+                    constructor(x, y) {
+                        this.points = [];
+                        this.hue = p.random(360);
+                        this.noiseSeed = p.random(1000);
 
-                    let noiseForce = this.getNoiseVector(p);
-                    noiseForce.mult(PARAMS.noiseAmount);
-                    
-                    let prev = this.points[(i - 1 + this.points.length) % this.points.length];
-                    let next = this.points[(i + 1) % this.points.length];
-                    let desiredMidpoint = p5.Vector.lerp(prev, next, 0.5);
-                    let smoothingForce = p5.Vector.sub(desiredMidpoint, p);
-                    smoothingForce.mult(0.1);
+                        for (let i = 0; i < PARAMS.initialPoints; i++) {
+                            let angle = p.map(i, 0, PARAMS.initialPoints, 0, p.TWO_PI);
+                            let px = x + p.cos(angle) * PARAMS.initialRadius;
+                            let py = y + p.sin(angle) * PARAMS.initialRadius;
+                            this.points.push(p.createVector(px, py));
+                        }
+                    }
 
-                    let wallRepulsion = createVector(0, 0);
-                    if (PARAMS.wallRepel) {
-                        let marginPercent = map(PARAMS.boundaryMargin, 0, 100, 0.04, 0.5);
-                        let boundaryDist = width * marginPercent;
-                        let wallForceStrength = 0.1;
+                    update() {
+                        this.movePoints();
+                        this.grow();
+                        this.simplify();
+                    }
 
-                        if (p.x < boundaryDist)       wallRepulsion.x += wallForceStrength * (boundaryDist - p.x);
-                        if (p.x > width - boundaryDist) wallRepulsion.x -= wallForceStrength * (p.x - (width - boundaryDist));
-                        if (p.y < boundaryDist)       wallRepulsion.y += wallForceStrength * (boundaryDist - p.y);
-                        if (p.y > height - boundaryDist) wallRepulsion.y -= wallForceStrength * (p.y - (height - boundaryDist));
+                    grow() {
+                        let logicThreshold = p.map(PARAMS.growthRate, 0, 100, 40, 5);
+                        
+                        for (let i = this.points.length - 1; i >= 0; i--) {
+                            let p1 = this.points[i];
+                            let p2 = this.points[(i + 1) % this.points.length];
+                            let d = p5.Vector.dist(p1, p2);
+
+                            if (d > logicThreshold) {
+                                let midPoint = p5.Vector.lerp(p1, p2, 0.5);
+                                this.points.splice(i + 1, 0, midPoint);
+                            }
+                        }
                     }
                     
-                    let totalForce = createVector();
-                    totalForce.add(repulsion)
-                              .add(noiseForce)
-                              .add(smoothingForce)
-                              .add(wallRepulsion);
+                    simplify() {
+                        if (this.points.length <= PARAMS.initialPoints) return;
 
-                    let newPos = p5.Vector.add(p, totalForce);
-
-                    if (PARAMS.wallRepel) {
-                        newPos.x = constrain(newPos.x, 0, width);
-                        newPos.y = constrain(newPos.y, 0, height);
+                        for (let i = this.points.length - 1; i >= 0; i--) {
+                            let p1 = this.points[i];
+                            let p2 = this.points[(i + 1) % this.points.length];
+                            let d = p5.Vector.dist(p1, p2);
+                            if (d < PARAMS.simplificationThreshold) {
+                                 this.points.splice(i, 1);
+                            }
+                        }
                     }
 
-                    newPositions.push(newPos);
-                }
-                this.points = newPositions;
-            }
+                    movePoints() {
+                        let newPositions = [];
+                        for (let i = 0; i < this.points.length; i++) {
+                            let pt = this.points[i];
+                            
+                            let repulsion = this.getRepulsionVector(pt);
+                            repulsion.mult(2.0);
 
-            getNoiseVector(point) {
-                let angle = noise(point.x * 0.01, point.y * 0.01, this.noiseSeed + noiseOffset) * TWO_PI * 2;
-                return p5.Vector.fromAngle(angle);
-            }
+                            let noiseForce = this.getNoiseVector(pt);
+                            noiseForce.mult(PARAMS.noiseAmount);
+                            
+                            let prev = this.points[(i - 1 + this.points.length) % this.points.length];
+                            let next = this.points[(i + 1) % this.points.length];
+                            let desiredMidpoint = p5.Vector.lerp(prev, next, 0.5);
+                            let smoothingForce = p5.Vector.sub(desiredMidpoint, pt);
+                            smoothingForce.mult(0.1);
 
-            getRepulsionVector(point) {
-                let totalRepulsion = createVector(0, 0);
-                let range = { x: point.x, y: point.y, r: PARAMS.repelDist };
-                let neighbors = quadtree.query(range);
+                            let wallRepulsion = p.createVector(0, 0);
+                            if (PARAMS.wallRepel) {
+                                let marginPercent = p.map(PARAMS.boundaryMargin, 0, 100, 0.04, 0.5);
+                                let boundaryDist = p.width * marginPercent;
+                                let wallForceStrength = 0.1;
 
-                for (const otherPoint of neighbors) {
-                    if (point.x === otherPoint.x && point.y === otherPoint.y) continue;
-                    let d = dist(point.x, point.y, otherPoint.x, otherPoint.y);
-                    if (d > 0 && d < PARAMS.repelDist) {
-                        let repel = p5.Vector.sub(point, createVector(otherPoint.x, otherPoint.y));
-                        repel.normalize();
-                        repel.div(d);
-                        totalRepulsion.add(repel);
+                                if (pt.x < boundaryDist)       wallRepulsion.x += wallForceStrength * (boundaryDist - pt.x);
+                                if (pt.x > p.width - boundaryDist) wallRepulsion.x -= wallForceStrength * (pt.x - (p.width - boundaryDist));
+                                if (pt.y < boundaryDist)       wallRepulsion.y += wallForceStrength * (boundaryDist - pt.y);
+                                if (pt.y > p.height - boundaryDist) wallRepulsion.y -= wallForceStrength * (pt.y - (p.height - boundaryDist));
+                            }
+                            
+                            let totalForce = p.createVector();
+                            totalForce.add(repulsion)
+                                      .add(noiseForce)
+                                      .add(smoothingForce)
+                                      .add(wallRepulsion);
+
+                            let newPos = p5.Vector.add(pt, totalForce);
+
+                            if (PARAMS.wallRepel) {
+                                newPos.x = p.constrain(newPos.x, 0, p.width);
+                                newPos.y = p.constrain(newPos.y, 0, p.height);
+                            }
+
+                            newPositions.push(newPos);
+                        }
+                        this.points = newPositions;
+                    }
+
+                    getNoiseVector(point) {
+                        let angle = p.noise(point.x * 0.01, point.y * 0.01, this.noiseSeed + noiseOffset) * p.TWO_PI * 2;
+                        return p5.Vector.fromAngle(angle);
+                    }
+
+                    getRepulsionVector(point) {
+                        let totalRepulsion = p.createVector(0, 0);
+                        let range = { x: point.x, y: point.y, r: PARAMS.repelDist };
+                        let neighbors = quadtree.query(range);
+
+                        for (const otherPoint of neighbors) {
+                            if (point.x === otherPoint.x && point.y === otherPoint.y) continue;
+                            let d = p.dist(point.x, point.y, otherPoint.x, otherPoint.y);
+                            if (d > 0 && d < PARAMS.repelDist) {
+                                let repel = p5.Vector.sub(point, p.createVector(otherPoint.x, otherPoint.y));
+                                repel.normalize();
+                                repel.div(d);
+                                totalRepulsion.add(repel);
+                            }
+                        }
+                        return totalRepulsion;
+                    }
+
+                    display() {
+                        if (this.points.length < 3) return;
+
+                        let strokeColor = p.color(this.hue, 80, 85);
+                        
+                        if (PARAMS.fillLoops) {
+                            let fillColor = p.color(this.hue, 80, 85, PARAMS.fillOpacity);
+                            p.fill(fillColor);
+                        } else {
+                            p.noFill();
+                        }
+                        p.stroke(strokeColor);
+                        p.strokeWeight(PARAMS.strokeWidth);
+
+                        p.beginShape();
+                        p.curveVertex(this.points[this.points.length - 1].x, this.points[this.points.length - 1].y);
+                        for (let pt of this.points) {
+                            p.curveVertex(pt.x, pt.y);
+                        }
+                        p.curveVertex(this.points[0].x, this.points[0].y);
+                        p.curveVertex(this.points[1].x, this.points[1].y);
+                        p.endShape();
                     }
                 }
-                return totalRepulsion;
-            }
 
-            display() {
-                if (this.points.length < 3) return;
-
-                let strokeColor = color(this.hue, 80, 85);
+                // --- Helper Functions ---
                 
-                if (PARAMS.fillLoops) {
-                    let fillColor = color(this.hue, 80, 85, PARAMS.fillOpacity);
-                    fill(fillColor);
-                } else {
-                    noFill();
+                const getCanvasSize = () => {
+                     const sketchContainer = document.getElementById('sketch-container');
+                     const availableWidth = sketchContainer.clientWidth;
+                     const availableHeight = sketchContainer.clientHeight;
+                     return Math.min(availableWidth, availableHeight);
                 }
-                stroke(strokeColor);
-                strokeWeight(PARAMS.strokeWidth);
 
-                beginShape();
-                curveVertex(this.points[this.points.length - 1].x, this.points[this.points.length - 1].y);
-                for (let i = 0; i < this.points.length; i++) {
-                    curveVertex(this.points[i].x, this.points[i].y);
+                const redrawStatic = () => {
+                    p.background(bgColor);
+                    for (let loop of allLoops) {
+                        loop.display();
+                    }
                 }
-                curveVertex(this.points[0].x, this.points[0].y);
-                curveVertex(this.points[1].x, this.points[1].y);
-                endShape();
-            }
-        }
 
-        // === p5.js Core Functions === //
-        
-        function getCanvasSize() {
-             const sketchContainer = document.getElementById('sketch-container');
-             const availableWidth = sketchContainer.clientWidth;
-             const availableHeight = sketchContainer.clientHeight;
-             return min(availableWidth, availableHeight);
-        }
+                const setupControls = () => {
+                    const sliders = document.querySelectorAll('input[type="range"]');
+                    sliders.forEach(slider => {
+                        const updateDisplay = () => {
+                            const id = slider.id;
+                            const value = Number(slider.value);
+                            const min = Number(slider.min);
+                            const max = Number(slider.max);
+                            
+                            let displayValue = p.map(value, min, max, 0, 100);
 
-        function setup() {
-            let canvasSize = getCanvasSize();
-            const canvas = createCanvas(canvasSize, canvasSize);
-            canvas.parent('p5-canvas-placeholder');
-            colorMode(HSB, 360, 100, 100, 1);
-            
-            bgColor = color(document.getElementById('bgColorPicker').value);
-            background(bgColor); 
-            
-            setupControls();
-        }
-        
-        function redrawStatic() {
-            background(bgColor);
-            for (let loop of allLoops) {
-                loop.display();
-            }
-        }
-        
-        function setupControls() {
-            const sliders = document.querySelectorAll('input[type="range"]');
-            sliders.forEach(slider => {
-                // Function to update the display for a slider
-                const updateDisplay = () => {
-                    const id = slider.id;
-                    const value = Number(slider.value);
-                    const min = Number(slider.min);
-                    const max = Number(slider.max);
+                            const valueSpan = document.getElementById(`${id}-value`);
+                            if (valueSpan) {
+                                 valueSpan.textContent = p.floor(displayValue);
+                            }
+                        };
+
+                        slider.addEventListener('input', (e) => {
+                            PARAMS[e.target.id] = Number(e.target.value);
+                            updateDisplay();
+                            updateSliderTrack(e.target);
+                            if (isPaused && ['strokeWidth', 'fillOpacity', 'boundaryMargin'].includes(e.target.id)) {
+                                redrawStatic();
+                            }
+                        });
+
+                        updateDisplay();
+                        updateSliderTrack(slider);
+                    });
+
+
+                    document.getElementById('bgColorPicker').addEventListener('input', (e) => {
+                        bgColor = p.color(e.target.value);
+                        if (isPaused) {
+                            redrawStatic();
+                        } else {
+                            p.background(bgColor);
+                        }
+                    });
+
+                    document.getElementById('clear-btn').addEventListener('click', () => { 
+                        allLoops = []; 
+                        if(isPaused) redrawStatic();
+                        else p.background(bgColor); 
+                    });
                     
-                    let displayValue = map(value, min, max, 0, 100);
+                    const pauseBtn = document.getElementById('pause-btn');
+                    pauseBtn.addEventListener('click', () => {
+                        isPaused = !isPaused;
+                        if (isPaused) { p.noLoop(); pauseBtn.textContent = 'Play'; } else { p.loop(); pauseBtn.textContent = 'Pause'; }
+                    });
+                    
+                    const fillBtn = document.getElementById('fill-btn');
+                    const fillOpacitySlider = document.getElementById('fillOpacity');
+                    fillBtn.addEventListener('click', () => {
+                        PARAMS.fillLoops = !PARAMS.fillLoops;
+                        fillBtn.textContent = `Fill: ${PARAMS.fillLoops ? 'ON' : 'OFF'}`;
+                        fillOpacitySlider.disabled = !PARAMS.fillLoops;
+                        fillOpacitySlider.parentElement.classList.toggle('disabled-group', !PARAMS.fillLoops);
+                        if (isPaused) redrawStatic();
+                    });
+                    fillOpacitySlider.parentElement.classList.toggle('disabled-group', !PARAMS.fillLoops);
 
-                    const valueSpan = document.getElementById(`${id}-value`);
-                    if (valueSpan) {
-                         valueSpan.textContent = floor(displayValue);
+                    const wallRepelBtn = document.getElementById('wall-repel-btn');
+                    const boundaryMarginSlider = document.getElementById('boundaryMargin');
+                    wallRepelBtn.addEventListener('click', () => {
+                        PARAMS.wallRepel = !PARAMS.wallRepel;
+                        wallRepelBtn.textContent = `Boundaries: ${PARAMS.wallRepel ? 'ON' : 'OFF'}`;
+                        boundaryMarginSlider.disabled = !PARAMS.wallRepel;
+                        boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel);
+                         if (isPaused) redrawStatic();
+                    });
+                    boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel);
+
+                    document.getElementById('save-btn').addEventListener('click', () => {
+                        p.saveCanvas('anthozoa', 'png');
+                    });
+                }
+                
+                const updateSliderTrack = (slider) => {
+                    const min = slider.min || 0; const max = slider.max || 100; const value = slider.value;
+                    const progress = ((value - min) / (max - min)) * 100;
+                    slider.style.setProperty('--range-progress', `${progress}%`);
+                }
+                
+                // --- p5.js Core Functions attached to sketch instance "p" ---
+                p.setup = () => {
+                    let canvasSize = getCanvasSize();
+                    const canvas = p.createCanvas(canvasSize, canvasSize);
+                    canvas.parent('p5-canvas-placeholder');
+                    p.colorMode(p.HSB, 360, 100, 100, 1);
+                    
+                    bgColor = p.color(document.getElementById('bgColorPicker').value);
+                    p.background(bgColor); 
+                    
+                    setupControls();
+                };
+
+                p.draw = () => {
+                    let trailColor = p.color(bgColor.toString());
+                    trailColor.setAlpha(25);
+                    p.background(trailColor);
+                    
+                    let boundary = new Rectangle(p.width / 2, p.height / 2, p.width / 2, p.height / 2);
+                    quadtree = new QuadTree(boundary, 4);
+                    for (let loop of allLoops) {
+                        for (let pt of loop.points) {
+                            quadtree.insert(new Point(pt.x, pt.y));
+                        }
+                    }
+                    for (let loop of allLoops) { loop.update(); loop.display(); }
+                    noiseOffset += 0.002;
+                };
+
+                p.mousePressed = () => {
+                    if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height) {
+                        if (isPaused) return;
+                        allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY));
                     }
                 };
 
-                slider.addEventListener('input', (e) => {
-                    PARAMS[e.target.id] = Number(e.target.value);
-                    updateDisplay();
-                    updateSliderTrack(e.target);
-                    if (isPaused && ['strokeWidth', 'fillOpacity', 'boundaryMargin'].includes(e.target.id)) {
-                        redrawStatic();
+                p.touchStarted = () => {
+                    if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height) {
+                        if (isPaused) return;
+                        allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY));
+                        return false; 
                     }
-                });
+                };
 
-                updateDisplay();
-                updateSliderTrack(slider);
-            });
-
-
-            document.getElementById('bgColorPicker').addEventListener('input', (e) => {
-                bgColor = color(e.target.value);
-                if (isPaused) {
-                    redrawStatic();
-                } else {
-                    background(bgColor);
-                }
-            });
-
-            document.getElementById('clear-btn').addEventListener('click', () => { 
-                allLoops = []; 
-                if(isPaused) redrawStatic();
-                else background(bgColor); 
-            });
+                p.windowResized = () => {
+                    let canvasSize = getCanvasSize();
+                    p.resizeCanvas(canvasSize, canvasSize);
+                    p.background(bgColor);
+                    if(isPaused) redrawStatic();
+                };
+            };
             
-            const pauseBtn = document.getElementById('pause-btn');
-            pauseBtn.addEventListener('click', () => {
-                isPaused = !isPaused;
-                if (isPaused) { noLoop(); pauseBtn.textContent = 'Play'; } else { loop(); pauseBtn.textContent = 'Pause'; }
-            });
-            
-            const fillBtn = document.getElementById('fill-btn');
-            const fillOpacitySlider = document.getElementById('fillOpacity');
-            fillBtn.addEventListener('click', () => {
-                PARAMS.fillLoops = !PARAMS.fillLoops;
-                fillBtn.textContent = `Fill: ${PARAMS.fillLoops ? 'ON' : 'OFF'}`;
-                fillOpacitySlider.disabled = !PARAMS.fillLoops;
-                fillOpacitySlider.parentElement.classList.toggle('disabled-group', !PARAMS.fillLoops);
-                if (isPaused) redrawStatic();
-            });
-            // Set initial disabled state
-            fillOpacitySlider.parentElement.classList.toggle('disabled-group', !PARAMS.fillLoops);
-
-            const wallRepelBtn = document.getElementById('wall-repel-btn');
-            const boundaryMarginSlider = document.getElementById('boundaryMargin');
-            wallRepelBtn.addEventListener('click', () => {
-                PARAMS.wallRepel = !PARAMS.wallRepel;
-                wallRepelBtn.textContent = `Boundaries: ${PARAMS.wallRepel ? 'ON' : 'OFF'}`;
-                boundaryMarginSlider.disabled = !PARAMS.wallRepel;
-                boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel);
-                 if (isPaused) redrawStatic();
-            });
-            // Set initial disabled state
-            boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel);
-
-
-            document.getElementById('save-btn').addEventListener('click', () => {
-                saveCanvas('anthozoa', 'png');
-            });
-        }
-        
-        function updateSliderTrack(slider) {
-            const min = slider.min || 0; const max = slider.max || 100; const value = slider.value;
-            const progress = ((value - min) / (max - min)) * 100;
-            slider.style.setProperty('--range-progress', `${progress}%`);
-        }
-
-        function draw() {
-            let trailColor = color(bgColor.toString());
-            trailColor.setAlpha(25);
-            background(trailColor);
-            
-            let boundary = new Rectangle(width / 2, height / 2, width / 2, height / 2);
-            quadtree = new QuadTree(boundary, 4);
-            for (let loop of allLoops) {
-                for (let p of loop.points) {
-                    quadtree.insert(new Point(p.x, p.y));
-                }
-            }
-            for (let loop of allLoops) { loop.update(); loop.display(); }
-            noiseOffset += 0.002;
-        }
-
-        function mousePressed() {
-            if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-                if (isPaused) return;
-                allLoops.push(new AnthozoaLoop(mouseX, mouseY));
-            }
-        }
-
-        function touchStarted() {
-            if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-                if (isPaused) return;
-                allLoops.push(new AnthozoaLoop(mouseX, mouseY));
-                return false; 
-            }
-        }
-
-        function windowResized() {
-            let canvasSize = getCanvasSize();
-            resizeCanvas(canvasSize, canvasSize);
-            background(bgColor);
-            if(isPaused) redrawStatic();
-        }
-
+            // Start the sketch
+            new p5(sketch, 'p5-canvas-placeholder');
+        };
     </script>
 </body>
 </html>
