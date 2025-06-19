@@ -1,4 +1,4 @@
-/* anthozoa.css - v0.43 Layout Refactor */
+/* anthozoa.css - v0.45 World Seed Update */
 html, body {
     margin: 0;
     padding: 0;
@@ -107,6 +107,17 @@ canvas {
 .controls input[type="range"]:hover::-moz-range-thumb { background: #4c6121; }
 .controls input[type="color"] { border: 1px solid #f0f2f5; background: transparent; width: 30px; height: 30px; border-radius: 4px; margin-left: 4px; padding:0; cursor:pointer;}
 
+/* NEW: Styles for text inputs like the seed */
+.controls input[type="text"] {
+    background: #ede3df;
+    border: 1px solid #3b4c1a;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-family: 'Oswald', sans-serif;
+    color: #3b4c1a;
+    width: 140px;
+}
+
 .controls button {
     background: rgba(59, 76, 26, 0.75);
     color: #ede3df;
@@ -140,7 +151,6 @@ canvas {
 .controls .canvas-size-group button { background: transparent; border: none; margin: 0; padding: 6px 12px; }
 .controls .canvas-size-group button.active { background: #3b4c1a; border-radius: 6px; }
 
-/* Styles for true fullscreen mode */
 body.fullscreen-active > *:not(#sketch-container) { display: none !important; }
 body.fullscreen-active { padding: 0 !important; gap: 0 !important; }
 body.fullscreen-active #sketch-container { padding: 0 !important; }
