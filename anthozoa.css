@@ -15,8 +15,8 @@ body {
     align-items: center;
     box-sizing: border-box;
     height: 100%;
-    padding: 15px; /* Symmetrical padding */
-    gap: 15px; /* Consistent gap between all elements */
+    padding: 10px; /* Reduced symmetrical padding */
+    gap: 10px; /* Reduced consistent gap for a tighter layout */
 }
 
 .main-title {
@@ -115,8 +115,8 @@ canvas {
     width: 100%; font-family: 'Oswald', sans-serif; font-size: 0.8em;
     color: #3b4c1a; flex-shrink: 0; box-sizing: border-box;
     display: flex; justify-content: center; align-items: center; flex-wrap:wrap; gap: 4px 10px;
-    margin-top: auto; /* Pushes footer to the bottom of the flex container */
 }
+
 #site-footer a {
     color: #3b4c1a;
     text-decoration: none;
