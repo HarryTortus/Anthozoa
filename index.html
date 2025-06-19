@@ -36,7 +36,7 @@
             <div class="control-group">
                 <label for="growthThreshold">Growth</label>
                 <input type="range" id="growthThreshold" min="5" max="40" value="28" step="1">
-                <span class="value-display" id="growthThreshold-value">34</span>
+                <span class="value-display" id="growthThreshold-value">66</span>
             </div>
             <div class="control-group">
                 <label for="noiseAmount">Wander</label>
@@ -78,7 +78,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.19</span>
+        <span id="version-number">v0.20</span>
     </footer>
 
 
@@ -142,13 +142,20 @@
             }
 
             grow() {
+                // To make the UI slider intuitive (high value = more growth),
+                // we map the parameter to an inverted threshold for the logic.
+                // A high slider value gives a low threshold, causing more growth.
+                const growthSlider = document.getElementById('growthThreshold');
+                const minThreshold = Number(growthSlider.min);
+                const maxThreshold = Number(growthSlider.max);
+                let invertedThreshold = map(PARAMS.growthThreshold, minThreshold, maxThreshold, maxThreshold, minThreshold);
+                
                 for (let i = this.points.length - 1; i >= 0; i--) {
                     let p1 = this.points[i];
                     let p2 = this.points[(i + 1) % this.points.length];
                     let d = p5.Vector.dist(p1, p2);
-                    // A lower threshold means more growth, so we use the raw value here.
-                    // The UI inversion is handled in setupControls.
-                    if (d > PARAMS.growthThreshold) {
+
+                    if (d > invertedThreshold) {
                         let midPoint = p5.Vector.lerp(p1, p2, 0.5);
                         this.points.splice(i + 1, 0, midPoint);
                     }
@@ -293,14 +300,8 @@
                     const min = Number(slider.min);
                     const max = Number(slider.max);
                     
-                    let displayValue;
-
-                    // Special mapping for growth so a high value means high growth
-                    if (id === 'growthThreshold') {
-                        displayValue = map(value, min, max, 100, 0);
-                    } else { // Standard mapping for all other sliders
-                        displayValue = map(value, min, max, 0, 100);
-                    }
+                    // All sliders are now mapped from 0-100 for the UI
+                    let displayValue = map(value, min, max, 0, 100);
 
                     const valueSpan = document.getElementById(`${id}-value`);
                     if (valueSpan) {
