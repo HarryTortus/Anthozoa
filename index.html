@@ -35,31 +35,31 @@
             </div>
             <div class="control-group">
                 <label for="growthThreshold">Growth</label>
-                <input type="range" id="growthThreshold" min="5" max="40" value="12" step="1">
-                <span class="value-display" id="growthThreshold-value">12</span>
+                <input type="range" id="growthThreshold" min="5" max="40" value="28" step="1">
+                <span class="value-display" id="growthThreshold-value">34</span>
             </div>
             <div class="control-group">
                 <label for="noiseAmount">Wander</label>
                 <input type="range" id="noiseAmount" min="0" max="1.5" value="0.5" step="0.05">
-                <span class="value-display" id="noiseAmount-value">0.50</span>
+                <span class="value-display" id="noiseAmount-value">33</span>
             </div>
             <div class="control-group">
                 <label for="strokeWidth">Thickness</label>
                 <input type="range" id="strokeWidth" min="1" max="10" value="2" step="0.5">
-                <span class="value-display" id="strokeWidth-value">2.0</span>
+                <span class="value-display" id="strokeWidth-value">11</span>
             </div>
             <!-- Visual effect controls are now grouped together -->
             <div class="control-group">
                  <button id="fill-btn">Fill: OFF</button>
                  <label for="fillOpacity" style="margin-left:15px;">Opacity</label>
                  <input type="range" id="fillOpacity" min="0" max="1" value="0.4" step="0.01" disabled>
-                 <span class="value-display" id="fillOpacity-value">0.40</span>
+                 <span class="value-display" id="fillOpacity-value">40</span>
             </div>
              <div class="control-group">
                  <button id="wall-repel-btn">Boundaries: OFF</button>
                 <label for="boundaryMargin" style="margin-left:15px;">Margin</label>
                 <input type="range" id="boundaryMargin" min="1" max="150" value="50" step="1" disabled>
-                <span class="value-display" id="boundaryMargin-value">50</span>
+                <span class="value-display" id="boundaryMargin-value">33</span>
             </div>
             <div class="control-group">
                 <label for="bgColorPicker">Background</label>
@@ -78,7 +78,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.18</span>
+        <span id="version-number">v0.19</span>
     </footer>
 
 
@@ -86,7 +86,7 @@
         // === GLOBAL PARAMETERS === //
         let PARAMS = {
             repelDist: 50,
-            growthThreshold: 12,
+            growthThreshold: 28,
             simplificationThreshold: 1, // Hardcoded for best results.
             noiseAmount: 0.5,
             strokeWidth: 2,
@@ -142,15 +142,13 @@
             }
 
             grow() {
-                const minThreshold = 5;
-                const maxThreshold = 40;
-                let invertedThreshold = map(PARAMS.growthThreshold, minThreshold, maxThreshold, maxThreshold, minThreshold);
-
                 for (let i = this.points.length - 1; i >= 0; i--) {
                     let p1 = this.points[i];
                     let p2 = this.points[(i + 1) % this.points.length];
                     let d = p5.Vector.dist(p1, p2);
-                    if (d > invertedThreshold) {
+                    // A lower threshold means more growth, so we use the raw value here.
+                    // The UI inversion is handled in setupControls.
+                    if (d > PARAMS.growthThreshold) {
                         let midPoint = p5.Vector.lerp(p1, p2, 0.5);
                         this.points.splice(i + 1, 0, midPoint);
                     }
@@ -288,29 +286,38 @@
         function setupControls() {
             const sliders = document.querySelectorAll('input[type="range"]');
             sliders.forEach(slider => {
-                slider.addEventListener('input', (e) => {
-                    const id = e.target.id;
-                    const value = Number(e.target.value);
-                    PARAMS[id] = value;
+                // Function to update the display for a slider
+                const updateDisplay = () => {
+                    const id = slider.id;
+                    const value = Number(slider.value);
+                    const min = Number(slider.min);
+                    const max = Number(slider.max);
+                    
+                    let displayValue;
+
+                    // Special mapping for growth so a high value means high growth
+                    if (id === 'growthThreshold') {
+                        displayValue = map(value, min, max, 100, 0);
+                    } else { // Standard mapping for all other sliders
+                        displayValue = map(value, min, max, 0, 100);
+                    }
+
                     const valueSpan = document.getElementById(`${id}-value`);
                     if (valueSpan) {
-                         valueSpan.textContent = value;
+                         valueSpan.textContent = floor(displayValue);
                     }
+                };
+
+                // Update display on input
+                slider.addEventListener('input', (e) => {
+                    PARAMS[e.target.id] = Number(e.target.value);
+                    updateDisplay();
                     updateSliderTrack(e.target);
                 });
+
+                // Set initial display value
+                updateDisplay();
                 updateSliderTrack(slider);
-                const initialValueSpan = document.getElementById(`${slider.id}-value`);
-                if(initialValueSpan) {
-                     initialValueSpan.textContent = slider.value;
-                }
-            });
-             document.querySelectorAll('#noiseAmount, #strokeWidth, #fillOpacity').forEach(s => {
-                const valueSpan = document.getElementById(`${s.id}-value`);
-                if(valueSpan) valueSpan.textContent = Number(s.value).toFixed(2);
-                s.addEventListener('input', (e) => {
-                     const valueSpan = document.getElementById(`${e.target.id}-value`);
-                     if(valueSpan) valueSpan.textContent = Number(e.target.value).toFixed(2);
-                });
             });
 
 
