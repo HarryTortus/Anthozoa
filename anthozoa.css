@@ -84,6 +84,7 @@ canvas {
 .controls .control-group {
     display: flex;
     align-items: center;
+    transition: opacity 0.3s ease;
 }
 
 .controls::-webkit-scrollbar { height: 10px; background: #ede3df; border-radius: 6px; }
@@ -99,17 +100,38 @@ canvas {
     color: #f0f2f5;
 }
 .controls input[type="range"] { width: 120px;-webkit-appearance: none;appearance: none;background: transparent;margin: 0 8px; cursor:pointer;}
-.controls input[type="range"]::-webkit-slider-runnable-track { width: 100%;height: 8px;background: linear-gradient(to right, #3b4c1a var(--range-progress, 0%), #ede3df var(--range-progress, 0%));border-radius: 4px;cursor: pointer; }
-.controls input[type="range"]::-moz-range-track { width: 100%;height: 8px;background: linear-gradient(to right, #3b4c1a var(--range-progress, 0%), #ede3df var(--range-progress, 0%));border-radius: 4px;cursor: pointer; }
-.controls input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none;appearance: none;border: none;width: 18px;height: 18px;border-radius: 50%;background: #3b4c1a;cursor: pointer;margin-top: -5px;box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.controls input[type="range"]::-moz-range-thumb { border: none;width: 18px;height: 18px;border-radius: 50%;background: #3b4c1a;cursor: pointer;box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.controls input[type="range"]::-webkit-slider-runnable-track { width: 100%;height: 8px;background: linear-gradient(to right, #3b4c1a var(--range-progress, 0%), #ede3df var(--range-progress, 0%));border-radius: 4px;cursor: pointer; transition: background 0.3s ease;}
+.controls input[type="range"]::-moz-range-track { width: 100%;height: 8px;background: linear-gradient(to right, #3b4c1a var(--range-progress, 0%), #ede3df var(--range-progress, 0%));border-radius: 4px;cursor: pointer; transition: background 0.3s ease;}
+.controls input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none;appearance: none;border: none;width: 18px;height: 18px;border-radius: 50%;background: #3b4c1a;cursor: pointer;margin-top: -5px;box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: background 0.3s ease;}
+.controls input[type="range"]::-moz-range-thumb { border: none;width: 18px;height: 18px;border-radius: 50%;background: #3b4c1a;cursor: pointer;box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: background 0.3s ease;}
 .controls input[type="range"]:hover::-webkit-slider-thumb { background: #4c6121; }
 .controls input[type="range"]:hover::-moz-range-thumb { background: #4c6121; }
 .controls input[type="color"] { border: 1px solid #f0f2f5; background: transparent; width: 30px; height: 30px; border-radius: 4px; margin-left: 4px; padding:0; cursor:pointer;}
 
-.controls button { background: #3b4c1a; color: #ede3df; border: none; border-radius: 6px; padding: 8px 16px; font-size: 14px; cursor: pointer; font-family: 'Oswald',sans-serif; font-weight: bold; margin-left: 8px; }
-.controls button:hover { background: #4c6121; }
+.controls button {
+    background: rgba(59, 76, 26, 0.75); /* Semi-transparent background */
+    color: #ede3df;
+    border: 1px solid rgba(237, 227, 223, 0.4); /* Subtle light border */
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Oswald',sans-serif;
+    font-weight: bold;
+    margin-left: 8px;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+.controls button:hover {
+    background: rgba(76, 97, 33, 0.9); /* More opaque on hover */
+    border-color: rgba(237, 227, 223, 0.7);
+}
 .value-display { display: inline-block; min-width: 35px; text-align: left; margin-left: 2px; font-weight: normal; color: #f0f2f5; }
+
+/* NEW: Styles for disabled control groups */
+.control-group.disabled-group {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
 #site-footer {
     width: 100%; font-family: 'Oswald', sans-serif; font-size: 0.8em;
