@@ -57,8 +57,8 @@
              <div class="control-group">
                  <button id="wall-repel-btn">Boundaries: ON</button>
                 <label for="boundaryMargin" style="margin-left:15px;">Margin</label>
-                <input type="range" id="boundaryMargin" min="0" max="100" value="0" step="1">
-                <span class="value-display" id="boundaryMargin-value">0</span>
+                <input type="range" id="boundaryMargin" min="0" max="100" value="10" step="1">
+                <span class="value-display" id="boundaryMargin-value">10</span>
             </div>
             <div class="control-group">
                 <label for="bgColorPicker">Background</label>
@@ -85,7 +85,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.34</span>
+        <span id="version-number">v0.35</span>
     </footer>
 
 
@@ -97,7 +97,7 @@
                 let PARAMS = {
                     repelDist: 122, growthRate: 80, simplificationThreshold: 1, 
                     noiseAmount: 0.6, strokeWidth: 1, wallRepel: true,
-                    boundaryMargin: 0, fillLoops: true, fillOpacity: 0.5, 
+                    boundaryMargin: 10, fillLoops: true, fillOpacity: 0.5, 
                     initialPoints: 10, initialRadius: 15, canvasMode: 'fit'
                 };
 
@@ -180,12 +180,9 @@
                         p.endShape();
                     }
                 }
-
-                const redrawStatic = () => { p.background(bgColor); for (let loop of allLoops) loop.display(); }
-                const updateSliderTrack = (slider) => { const min = slider.min || 0, max = slider.max || 100, val = slider.value; slider.style.setProperty('--range-progress', `${((val - min) / (max - min)) * 100}%`); }
-
-                const setCanvasSize = (mode) => {
-                    PARAMS.canvasMode = mode;
+                
+                // Helper functions are now defined within the sketch scope
+                const getCanvasDimensions = (mode) => {
                     const sketchContainer = document.getElementById('sketch-container');
                     const availableWidth = sketchContainer.clientWidth;
                     const availableHeight = sketchContainer.clientHeight;
@@ -204,7 +201,6 @@
                             newWidth = newHeight = Math.min(availableWidth, availableHeight);
                             break;
                         case 'full':
-                            // The CSS handles the sizing, JS just resizes the canvas element.
                             newWidth = window.innerWidth;
                             newHeight = window.innerHeight;
                             break;
@@ -214,15 +210,24 @@
                             newHeight = availableHeight;
                             break;
                     }
-                    p.resizeCanvas(newWidth, newHeight);
+                    return { w: newWidth, h: newHeight };
+                };
+
+                const setCanvasSize = (mode) => {
+                    PARAMS.canvasMode = mode;
+                    const dims = getCanvasDimensions(mode);
+                    p.resizeCanvas(dims.w, dims.h);
                     if (isPaused) redrawStatic();
                 };
+                
+                const redrawStatic = () => { p.background(bgColor); for (let loop of allLoops) loop.display(); }
+                const updateSliderTrack = (slider) => { const min = slider.min || 0, max = slider.max || 100, val = slider.value; slider.style.setProperty('--range-progress', `${((val - min) / (max - min)) * 100}%`); }
 
                 const setupControls = () => {
                     document.querySelectorAll('.canvas-size-group button').forEach(button => {
                         button.addEventListener('click', (e) => {
                             const newMode = e.target.id.split('-')[1];
-                            const fullScreenElement = document.getElementById('p5-canvas-placeholder').parentElement;
+                            const fullScreenElement = document.getElementById('sketch-container');
 
                             if (newMode === 'full') {
                                 document.body.classList.add('fullscreen-active');
@@ -242,9 +247,9 @@
                     document.addEventListener('fullscreenchange', () => {
                         if (!document.fullscreenElement) {
                             document.body.classList.remove('fullscreen-active');
-                            setCanvasSize(PARAMS.canvasMode);
+                             // Short delay to allow browser to exit fullscreen mode before resizing
+                            setTimeout(() => setCanvasSize(PARAMS.canvasMode), 50);
                         } else {
-                             // When entering fullscreen, resize canvas to fill the new space
                             setCanvasSize('full');
                         }
                     });
@@ -274,8 +279,8 @@
                 }
                 
                 p.setup = () => {
-                    let canvasSize = getCanvasSize();
-                    p.createCanvas(canvasSize, canvasSize).parent('p5-canvas-placeholder');
+                    const dims = getCanvasDimensions(PARAMS.canvasMode);
+                    p.createCanvas(dims.w, dims.h).parent('p5-canvas-placeholder');
                     p.colorMode(p.HSB, 360, 100, 100, 1);
                     bgColor = p.color(document.getElementById('bgColorPicker').value);
                     p.background(bgColor); 
