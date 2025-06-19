@@ -36,7 +36,7 @@
             <div class="control-group">
                 <label for="growthThreshold">Growth</label>
                 <input type="range" id="growthThreshold" min="5" max="40" value="28" step="1">
-                <span class="value-display" id="growthThreshold-value">66</span>
+                <span class="value-display" id="growthThreshold-value">34</span>
             </div>
             <div class="control-group">
                 <label for="noiseAmount">Wander</label>
@@ -78,7 +78,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.22</span>
+        <span id="version-number">v0.27</span>
     </footer>
 
 
@@ -91,7 +91,7 @@
             noiseAmount: 0.5,
             strokeWidth: 2,
             wallRepel: false,
-            boundaryMargin: 25, // This is now a 0-100 value representing percentage.
+            boundaryMargin: 25, // This is a 0-100 value representing percentage.
             fillLoops: false,
             fillOpacity: 0.4, 
             initialPoints: 10,
@@ -191,7 +191,10 @@
 
                     let wallRepulsion = createVector(0, 0);
                     if (PARAMS.wallRepel) {
-                        let boundaryDist = map(PARAMS.boundaryMargin, 0, 100, 0, width / 2);
+                        // Map the 0-100 slider value to a responsive percentage of the canvas size
+                        // Start the margin at 4% of the canvas half-width to avoid issues at 0
+                        let marginPercent = map(PARAMS.boundaryMargin, 0, 100, 0.04, 0.5);
+                        let boundaryDist = width * marginPercent;
                         let wallForceStrength = 0.1;
 
                         if (p.x < boundaryDist)       wallRepulsion.x += wallForceStrength * (boundaryDist - p.x);
@@ -287,7 +290,6 @@
             setupControls();
         }
         
-        // NEW: Function to redraw the canvas statically when paused.
         function redrawStatic() {
             background(bgColor);
             for (let loop of allLoops) {
@@ -316,8 +318,7 @@
                     PARAMS[e.target.id] = Number(e.target.value);
                     updateDisplay();
                     updateSliderTrack(e.target);
-                    // If paused, redraw for visual controls
-                    if (isPaused && ['strokeWidth', 'fillOpacity'].includes(e.target.id)) {
+                    if (isPaused && ['strokeWidth', 'fillOpacity', 'boundaryMargin'].includes(e.target.id)) {
                         redrawStatic();
                     }
                 });
@@ -332,7 +333,7 @@
                 if (isPaused) {
                     redrawStatic();
                 } else {
-                    background(bgColor); // Redraw background if playing
+                    background(bgColor);
                 }
             });
 
@@ -354,8 +355,11 @@
                 PARAMS.fillLoops = !PARAMS.fillLoops;
                 fillBtn.textContent = `Fill: ${PARAMS.fillLoops ? 'ON' : 'OFF'}`;
                 fillOpacitySlider.disabled = !PARAMS.fillLoops;
+                fillOpacitySlider.parentElement.classList.toggle('disabled-group', !PARAMS.fillLoops);
                 if (isPaused) redrawStatic();
             });
+            // Set initial disabled state
+            fillOpacitySlider.parentElement.classList.toggle('disabled-group', !PARAMS.fillLoops);
 
             const wallRepelBtn = document.getElementById('wall-repel-btn');
             const boundaryMarginSlider = document.getElementById('boundaryMargin');
@@ -363,7 +367,12 @@
                 PARAMS.wallRepel = !PARAMS.wallRepel;
                 wallRepelBtn.textContent = `Boundaries: ${PARAMS.wallRepel ? 'ON' : 'OFF'}`;
                 boundaryMarginSlider.disabled = !PARAMS.wallRepel;
+                boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel);
+                 if (isPaused) redrawStatic();
             });
+            // Set initial disabled state
+            boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel);
+
 
             document.getElementById('save-btn').addEventListener('click', () => {
                 saveCanvas('anthozoa', 'png');
