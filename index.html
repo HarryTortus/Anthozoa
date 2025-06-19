@@ -69,11 +69,13 @@
                 <button id="clear-btn">Clear Canvas</button>
                 <button id="save-btn">Save Canvas</button>
             </div>
-             <!-- SIMPLIFIED Canvas Size Controls -->
-            <div class="control-group canvas-size-group">
-                <button id="size-square-btn" class="active">Square</button>
-                <button id="size-fit-btn">Fit</button>
+             <div class="control-group canvas-size-group">
+                <button id="size-square-btn">Square</button>
+                <button id="size-fit-btn" class="active">Fit</button>
                 <button id="size-full-btn">Full</button>
+                <button id="size-16-9-btn">16:9</button>
+                <button id="size-9-16-btn">9:16</button>
+                <button id="size-1-1-btn">1:1</button>
             </div>
         </div>
     </div>
@@ -83,7 +85,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.39</span>
+        <span id="version-number">v0.41</span>
     </footer>
 
 
@@ -95,7 +97,7 @@
                     repelDist: 122, growthRate: 80, simplificationThreshold: 1, 
                     noiseAmount: 0.6, strokeWidth: 1, wallRepel: true,
                     boundaryMargin: 10, fillLoops: true, fillOpacity: 0.5, 
-                    initialPoints: 10, initialRadius: 15, canvasMode: 'square'
+                    initialPoints: 10, initialRadius: 15, canvasMode: 'fit'
                 };
 
                 let allLoops = [];
@@ -184,6 +186,15 @@
                     const availableHeight = sketchContainer.clientHeight;
                     let newWidth, newHeight;
                     switch (mode) {
+                        case '16:9':
+                            if (availableWidth / availableHeight > 16 / 9) { newHeight = availableHeight; newWidth = availableHeight * 16 / 9; } 
+                            else { newWidth = availableWidth; newHeight = availableWidth * 9 / 16; }
+                            break;
+                        case '9:16':
+                            if (availableWidth / availableHeight > 9 / 16) { newHeight = availableHeight; newWidth = availableHeight * 9 / 16; } 
+                            else { newWidth = availableWidth; newHeight = availableWidth * 16 / 9; }
+                            break;
+                        case '1:1':
                         case 'square':
                             newWidth = newHeight = Math.min(availableWidth, availableHeight);
                             break;
@@ -222,7 +233,11 @@
                     document.addEventListener('fullscreenchange', () => {
                         if (!document.fullscreenElement) {
                             document.body.classList.remove('fullscreen-active');
-                            setTimeout(() => setCanvasSize(PARAMS.canvasMode), 50);
+                            setTimeout(() => {
+                                setCanvasSize('fit'); // Revert to fit mode
+                                document.querySelector('.canvas-size-group button.active').classList.remove('active');
+                                document.getElementById('size-fit-btn').classList.add('active');
+                            }, 50);
                         } else { setCanvasSize('full'); }
                     });
                     
