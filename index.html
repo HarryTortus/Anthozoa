@@ -36,7 +36,7 @@
             <div class="control-group">
                 <label for="growthThreshold">Growth</label>
                 <input type="range" id="growthThreshold" min="5" max="40" value="28" step="1">
-                <span class="value-display" id="growthThreshold-value">34</span>
+                <span class="value-display" id="growthThreshold-value">66</span>
             </div>
             <div class="control-group">
                 <label for="noiseAmount">Wander</label>
@@ -78,7 +78,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.21</span>
+        <span id="version-number">v0.22</span>
     </footer>
 
 
@@ -191,7 +191,6 @@
 
                     let wallRepulsion = createVector(0, 0);
                     if (PARAMS.wallRepel) {
-                        // Map the 0-100 slider value to a percentage of the canvas's half-width
                         let boundaryDist = map(PARAMS.boundaryMargin, 0, 100, 0, width / 2);
                         let wallForceStrength = 0.1;
 
@@ -288,10 +287,17 @@
             setupControls();
         }
         
+        // NEW: Function to redraw the canvas statically when paused.
+        function redrawStatic() {
+            background(bgColor);
+            for (let loop of allLoops) {
+                loop.display();
+            }
+        }
+        
         function setupControls() {
             const sliders = document.querySelectorAll('input[type="range"]');
             sliders.forEach(slider => {
-                // Function to update the display for a slider
                 const updateDisplay = () => {
                     const id = slider.id;
                     const value = Number(slider.value);
@@ -306,14 +312,16 @@
                     }
                 };
 
-                // Update display on input
                 slider.addEventListener('input', (e) => {
                     PARAMS[e.target.id] = Number(e.target.value);
                     updateDisplay();
                     updateSliderTrack(e.target);
+                    // If paused, redraw for visual controls
+                    if (isPaused && ['strokeWidth', 'fillOpacity'].includes(e.target.id)) {
+                        redrawStatic();
+                    }
                 });
 
-                // Set initial display value
                 updateDisplay();
                 updateSliderTrack(slider);
             });
@@ -321,12 +329,17 @@
 
             document.getElementById('bgColorPicker').addEventListener('input', (e) => {
                 bgColor = color(e.target.value);
-                background(bgColor);
+                if (isPaused) {
+                    redrawStatic();
+                } else {
+                    background(bgColor); // Redraw background if playing
+                }
             });
 
             document.getElementById('clear-btn').addEventListener('click', () => { 
                 allLoops = []; 
-                background(bgColor); 
+                if(isPaused) redrawStatic();
+                else background(bgColor); 
             });
             
             const pauseBtn = document.getElementById('pause-btn');
@@ -341,6 +354,7 @@
                 PARAMS.fillLoops = !PARAMS.fillLoops;
                 fillBtn.textContent = `Fill: ${PARAMS.fillLoops ? 'ON' : 'OFF'}`;
                 fillOpacitySlider.disabled = !PARAMS.fillLoops;
+                if (isPaused) redrawStatic();
             });
 
             const wallRepelBtn = document.getElementById('wall-repel-btn');
@@ -397,6 +411,7 @@
             let canvasSize = getCanvasSize();
             resizeCanvas(canvasSize, canvasSize);
             background(bgColor);
+            if(isPaused) redrawStatic();
         }
 
     </script>
