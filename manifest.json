@@ -1,0 +1,21 @@
+{
+    "name": "Anthozoa",
+    "short_name": "Anthozoa",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#3B4C1A",
+    "theme_color": "#AC4500",
+    "description": "A generative art tool for creating organic, loop-based structures.",
+    "icons": [
+        {
+            "src": "icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
