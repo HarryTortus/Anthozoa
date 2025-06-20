@@ -1,4 +1,4 @@
-/* anthozoa.css - v0.59 UI Polish */
+/* anthozoa.css - v0.59 Layout Refactor */
 html, body {
     margin: 0;
     padding: 0;
@@ -6,7 +6,7 @@ html, body {
     height: 100%;
     overflow: hidden; /* Prevent all scrolling */
     font-family: 'Oswald', sans-serif;
-    background-color: #3B4C1A; /* Dark green background */
+    background-color: #3B4C1A;
 }
 
 body {
@@ -18,7 +18,7 @@ body {
     gap: 10px; 
 }
 
-/* MODAL STYLES (NEW) */
+/* MODAL STYLES */
 .intro-panel-overlay {
     position: fixed;
     top: 0;
@@ -60,7 +60,6 @@ body {
     font-size: 1.1em;
 }
 
-/* UPDATED: Styles for the intro panel button to match control buttons */
 .intro-panel button {
     background: #4C6122;
     color: #EDE3DF;
