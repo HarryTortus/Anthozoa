@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anthozoa-cache-v4'; // Updated cache name for new version
+const CACHE_NAME = 'anthozoa-cache-v5'; // Bump this when you want to force a full recache
 const urlsToCache = [
     './',
     './index.html',
@@ -19,10 +19,9 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache and caching assets');
         return Promise.all(
           urlsToCache.map(url => {
-            return cache.add(new Request(url, {cache: 'no-store'})).catch(err => {
+            return cache.add(new Request(url, {cache: 'reload'})).catch(err => {
               console.warn(`Failed to cache ${url}:`, err);
             });
           })
@@ -43,17 +42,29 @@ self.addEventListener('activate', event => {
       );
     })
   );
+  // Take control immediately
+  self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
+  const req = event.request;
+  // Network-first for HTML (so index.html is always up to date)
+  if (req.mode === 'navigate' || (req.method === 'GET' && req.headers.get('accept') && req.headers.get('accept').includes('text/html'))) {
+    event.respondWith(
+      fetch(req)
+        .then(response => {
+          // Update cache with latest HTML
+          const resClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, resClone));
           return response;
-        }
-        return fetch(event.request);
-      }
-    )
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+  // Cache-first for everything else
+  event.respondWith(
+    caches.match(req)
+      .then(response => response || fetch(req))
   );
 });
