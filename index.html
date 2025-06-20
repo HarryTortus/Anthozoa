@@ -5,34 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Anthozoa</title>
     
-    <!-- PWA Manifest and Theme Color -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#AC4500">
-
-    <!-- Favicon Links -->
-    <link rel="shortcut icon" href="Icons/favicon.ico" type="image/x-icon">
-    <link rel="icon" type="image/png" sizes="32x32" href="Icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="Icons/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="Icons/apple-touch-icon.png">
+    <link rel="shortcut icon" href="./Icons/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="32x32" href="./Icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./Icons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./Icons/apple-touch-icon.png">
     
-    <!-- Import the p5.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-    
-    <!-- Import Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-
-    <!-- Link to the external CSS file -->
-    <link rel="stylesheet" href="anthozoa.css">
-    
+    <link rel="stylesheet" href="./anthozoa.css">
 </head>
 <body>
     <!-- NEW: Intro Panel -->
     <div id="intro-panel-overlay" class="intro-panel-overlay">
         <div class="intro-panel">
-            <img src="Icons/AnthozoaTitle.png" alt="Anthozoa Title" onerror="this.style.display='none'; document.querySelector('.fallback-title').style.display='block';">
-            <h2 class="fallback-title" style="display:none;">Anthozoa</h2>
+            <img src="./Icons/AnthozoaTitle.png" alt="Anthozoa Title" class="main-title-img">
             <p>Welcome to Anthozoa, a generative art tool for creating organic, cellular structures. Click on the canvas to plant a "seed" and watch it grow. Use the controls below to shape its evolution.</p>
             <button id="close-intro-btn">Begin Creating</button>
         </div>
@@ -81,7 +71,7 @@
                 <input type="color" id="bgColorPicker" value="#ffffff">
             </div>
              <div class="control-group action-buttons">
-                <button id="about-btn">About</button> <!-- NEW -->
+                <button id="about-btn">About</button>
                 <button id="pause-btn">Pause</button>
                 <button id="clear-btn">Clear Canvas</button>
                 <button id="save-btn">Save Image</button>
@@ -99,7 +89,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.61</span>
+        <span id="version-number">v0.58</span>
     </footer>
 
 
@@ -107,7 +97,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             
              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/service-worker.js')
+                navigator.serviceWorker.register('./service-worker.js')
                 .then((reg) => console.log('Service worker registered.', reg))
                 .catch((err) => console.log('Service worker not registered.', err));
             }
@@ -217,9 +207,9 @@
                 const updateSliderTrack = (slider) => { const min = slider.min || 0, max = slider.max || 100, val = slider.value; slider.style.setProperty('--range-progress', `${((val - min) / (max - min)) * 100}%`); }
 
                 const setupControls = () => {
-                    // NEW: Modal Controls
                     const introPanel = document.getElementById('intro-panel-overlay');
-                    document.getElementById('close-intro-btn').addEventListener('click', () => {
+                    document.getElementById('close-intro-btn').addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent click from planting a seed
                         introPanel.classList.add('hidden');
                     });
                      document.getElementById('about-btn').addEventListener('click', () => {
