@@ -312,13 +312,17 @@
                 };
                 p.touchStarted = () => { 
                     const introPanel = document.getElementById('intro-panel-overlay');
-                    if (introPanel && !introPanel.classList.contains('hidden')) {
-                         return false; 
+                
+                    // If the intro panel is visible or the simulation is paused, 
+                    // don't draw, and allow the touch event to be handled by other UI elements.
+                    if ((introPanel && !introPanel.classList.contains('hidden')) || isPaused) {
+                        return true; // Allow the event to propagate
                     }
-
-                    if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height && !isPaused) {
+                
+                    // If the touch is on the canvas and we are ready to draw
+                    if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height) {
                         allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY)); 
-                        return false; 
+                        return false; // Prevent default browser actions like scrolling when drawing
                     }
                 };
                 p.windowResized = () => { setCanvasSize(PARAMS.canvasMode); };
