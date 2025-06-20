@@ -210,15 +210,3 @@ body.fullscreen-active canvas {
 @media (max-width: 420px) {
     .main-title-img { max-height: 60px; }
 }
-p.touchStarted = () => { 
-    const introPanel = document.getElementById('intro-panel-overlay');
-    if (introPanel && !introPanel.classList.contains('hidden')) {
-        return false; // Always return false to prevent p5 from hijacking touch
-    }
-
-    if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height && !isPaused) {
-        allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY)); 
-        return false; 
-    }
-    return false; // Always return false
-};
