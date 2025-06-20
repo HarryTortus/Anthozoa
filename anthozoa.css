@@ -1,10 +1,10 @@
-/* anthozoa.css - v0.58 Dark Theme & Layout Fix */
+/* anthozoa.css - v0.59 UI Polish */
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    overflow: hidden; /* Prevent all scrolling */
     font-family: 'Oswald', sans-serif;
     background-color: #3B4C1A; /* Dark green background */
 }
@@ -18,7 +18,7 @@ body {
     gap: 10px; 
 }
 
-/* MODAL STYLES */
+/* MODAL STYLES (NEW) */
 .intro-panel-overlay {
     position: fixed;
     top: 0;
@@ -47,38 +47,43 @@ body {
     border: 1px solid rgba(237, 227, 223, 0.2);
 }
 
-.intro-panel img {
+.intro-panel .main-title-img {
     max-width: 80%;
     height: auto;
     margin-bottom: 15px;
-}
-
-.intro-panel h2 {
-    margin-top: 0;
-    font-size: 1.8em;
-    color: #EDE3DF;
 }
 
 .intro-panel p {
     margin-bottom: 25px;
     line-height: 1.6;
     opacity: 0.9;
+    font-size: 1.1em;
 }
 
+/* UPDATED: Styles for the intro panel button to match control buttons */
 .intro-panel button {
     background: #4C6122;
     color: #EDE3DF;
-    border: 1px solid rgba(59, 76, 26, 0.8);
+    border: 1px solid rgba(59, 76, 26, 0.5);
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    cursor: pointer;
+    font-family: 'Oswald',sans-serif;
+    font-weight: normal; 
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 .intro-panel button:hover {
     background: #3B4C1A;
+    border-color: rgba(59, 76, 26, 0.8);
 }
-
 
 .hidden {
     opacity: 0;
     pointer-events: none;
 }
+/* END MODAL STYLES */
+
 
 #sketch-container {
     width: 100%;
