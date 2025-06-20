@@ -1,12 +1,12 @@
-/* anthozoa.css - v0.59 Layout Refactor */
+/* anthozoa.css - v0.60 UI & Layout Refactor */
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden; /* Prevent all scrolling */
+    overflow: hidden; 
     font-family: 'Oswald', sans-serif;
-    background-color: #3B4C1A;
+    background-color: #3B4C1A; 
 }
 
 body {
@@ -60,7 +60,6 @@ body {
     font-size: 1.1em;
 }
 
-/* UPDATED: Styles for the intro panel button to match control buttons */
 .intro-panel button {
     background: #4C6122;
     color: #EDE3DF;
