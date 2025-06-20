@@ -299,8 +299,23 @@
                     noiseOffset += 0.002;
                 };
 
-                p.mousePressed = () => { if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height && !isPaused) allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY)); };
-                p.touchStarted = () => { if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height && !isPaused) { allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY)); return false; } };
+                p.mousePressed = () => { 
+                    const introPanel = document.getElementById('intro-panel-overlay');
+                    if (!introPanel.classList.contains('hidden')) return; // Block clicks if panel is open
+
+                    if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height && !isPaused) {
+                        allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY));
+                    }
+                };
+                p.touchStarted = () => { 
+                    const introPanel = document.getElementById('intro-panel-overlay');
+                    if (!introPanel.classList.contains('hidden')) return false; // Block touches and default actions
+
+                    if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height && !isPaused) {
+                        allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY)); 
+                        return false; 
+                    }
+                };
                 p.windowResized = () => { setCanvasSize(PARAMS.canvasMode); };
             };
             
