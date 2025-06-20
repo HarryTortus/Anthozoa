@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Anthozoa</title>
     
     <link rel="manifest" href="./manifest.json">
@@ -209,7 +209,6 @@
                 const setupControls = () => {
                     const introPanel = document.getElementById('intro-panel-overlay');
                     document.getElementById('close-intro-btn').addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent event from bubbling to p5.js
                         introPanel.classList.add('hidden');
                     });
                      document.getElementById('about-btn').addEventListener('click', () => {
@@ -314,14 +313,13 @@
                 p.touchStarted = () => { 
                     const introPanel = document.getElementById('intro-panel-overlay');
                     if (introPanel && !introPanel.classList.contains('hidden')) {
-                        return false; // Always return false to prevent p5 from hijacking touch
+                         return false; 
                     }
 
                     if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height && !isPaused) {
                         allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY)); 
                         return false; 
                     }
-                    return false; // Always return false
                 };
                 p.windowResized = () => { setCanvasSize(PARAMS.canvasMode); };
             };
