@@ -5,18 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Anthozoa</title>
     
+    <!-- PWA Manifest and Theme Color -->
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#AC4500">
+
+    <!-- Favicon Links with corrected relative paths -->
     <link rel="shortcut icon" href="./Icons/favicon.ico" type="image/x-icon">
     <link rel="icon" type="image/png" sizes="32x32" href="./Icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./Icons/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="./Icons/apple-touch-icon.png">
     
+    <!-- Import the p5.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    
+    <!-- Import Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Link to the external CSS file -->
     <link rel="stylesheet" href="./anthozoa.css">
+    
 </head>
 <body>
     <!-- NEW: Intro Panel -->
@@ -89,7 +98,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.58</span>
+        <span id="version-number">v0.62</span>
     </footer>
 
 
@@ -209,7 +218,7 @@
                 const setupControls = () => {
                     const introPanel = document.getElementById('intro-panel-overlay');
                     document.getElementById('close-intro-btn').addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent click from planting a seed
+                        e.stopPropagation();
                         introPanel.classList.add('hidden');
                     });
                      document.getElementById('about-btn').addEventListener('click', () => {
