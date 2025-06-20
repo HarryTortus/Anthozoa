@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Anthozoa</title>
     
+    <!-- PWA Manifest and Theme Color -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#AC4500">
+    
     <!-- Import the p5.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
     
@@ -85,14 +89,21 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.55</span>
+        <span id="version-number">v0.57</span>
     </footer>
 
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const sketch = (p) => {
+            
+             // --- PWA Service Worker Registration ---
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/service-worker.js')
+                .then((reg) => console.log('Service worker registered.', reg))
+                .catch((err) => console.log('Service worker not registered.', err));
+            }
 
+            const sketch = (p) => {
                 let PARAMS = {
                     repelDist: 122, growthRate: 80, simplificationThreshold: 1, 
                     noiseAmount: 0.6, strokeWidth: 1, wallRepel: true,
