@@ -48,12 +48,18 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   const req = event.request;
-  // Network-first for HTML (so index.html is always up to date)
-  if (req.mode === 'navigate' || (req.method === 'GET' && req.headers.get('accept') && req.headers.get('accept').includes('text/html'))) {
+  const acceptHeader = req.headers.get('accept') || '';
+
+  // Network-first for HTML and CSS
+  if (
+    req.mode === 'navigate' ||
+    (req.method === 'GET' && acceptHeader.includes('text/html')) ||
+    (req.method === 'GET' && acceptHeader.includes('text/css'))
+  ) {
     event.respondWith(
       fetch(req)
         .then(response => {
-          // Update cache with latest HTML
+          // Update cache with latest file
           const resClone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(req, resClone));
           return response;
@@ -62,6 +68,7 @@ self.addEventListener('fetch', event => {
     );
     return;
   }
+
   // Cache-first for everything else
   event.respondWith(
     caches.match(req)
