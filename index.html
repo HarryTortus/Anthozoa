@@ -89,7 +89,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.59</span>
+        <span id="version-number">v0.60</span>
     </footer>
 
 
@@ -209,7 +209,6 @@
                 const setupControls = () => {
                     const introPanel = document.getElementById('intro-panel-overlay');
                     document.getElementById('close-intro-btn').addEventListener('click', (e) => {
-                        e.stopPropagation();
                         introPanel.classList.add('hidden');
                     });
                      document.getElementById('about-btn').addEventListener('click', () => {
@@ -301,7 +300,11 @@
 
                 p.mousePressed = () => { 
                     const introPanel = document.getElementById('intro-panel-overlay');
-                    if (!introPanel.classList.contains('hidden')) return; // Block clicks if panel is open
+                    if (introPanel && !introPanel.classList.contains('hidden')) {
+                        // If the click is on the overlay but not the panel itself, close it.
+                        // But the close button handles its own closing. So we only need to block.
+                        return;
+                    }
 
                     if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height && !isPaused) {
                         allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY));
@@ -309,7 +312,9 @@
                 };
                 p.touchStarted = () => { 
                     const introPanel = document.getElementById('intro-panel-overlay');
-                    if (!introPanel.classList.contains('hidden')) return false; // Block touches and default actions
+                    if (introPanel && !introPanel.classList.contains('hidden')) {
+                         return false; 
+                    }
 
                     if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height && !isPaused) {
                         allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY)); 
