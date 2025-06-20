@@ -65,8 +65,8 @@ body {
     color: #EDE3DF;
     border: 1px solid rgba(59, 76, 26, 0.5);
     border-radius: 6px;
-    padding: 10px 20px;
-    font-size: 1.1em;
+    padding: 8px 16px; /* Match controls */
+    font-size: 14px;   /* Match controls */
     cursor: pointer;
     font-family: 'Oswald',sans-serif;
     font-weight: normal; 
