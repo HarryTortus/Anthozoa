@@ -18,7 +18,10 @@
     
 </head>
 <body>
-    <h1 class="main-title">Anthozoa</h1>
+    <div class="title-container">
+        <img src="AnthozoaTitle.png" alt="Anthozoa Title" class="main-title-img" onerror="this.style.display='none'; document.querySelector('.fallback-title').style.display='block';">
+        <h1 class="main-title fallback-title" style="display:none;">Anthozoa</h1>
+    </div>
     <p class="subtitle">Click on the canvas to plant a seed.</p>
 
 
@@ -67,7 +70,7 @@
              <div class="control-group action-buttons">
                 <button id="pause-btn">Pause</button>
                 <button id="clear-btn">Clear Canvas</button>
-                <button id="save-btn">Save Canvas</button>
+                <button id="save-btn">Save Image</button>
             </div>
              <div class="control-group canvas-size-group">
                 <button id="size-square-btn" class="active">Square</button>
@@ -82,7 +85,7 @@
         <span>|</span>
         <span><a href="https://harrytortus.github.io/" target="_blank" rel="noopener noreferrer">Harry Tortus</a></span>
         <span>|</span>
-        <span id="version-number">v0.44</span>
+        <span id="version-number">v0.55</span>
     </footer>
 
 
@@ -183,17 +186,9 @@
                     const availableHeight = sketchContainer.clientHeight;
                     let newWidth, newHeight;
                     switch (mode) {
-                        case 'square':
-                            newWidth = newHeight = Math.min(availableWidth, availableHeight);
-                            break;
-                        case 'full':
-                            newWidth = window.innerWidth;
-                            newHeight = window.innerHeight;
-                            break;
-                        case 'fit':
-                        default:
-                            newWidth = availableWidth; newHeight = availableHeight;
-                            break;
+                        case 'square': newWidth = newHeight = Math.min(availableWidth, availableHeight); break;
+                        case 'full': newWidth = window.innerWidth; newHeight = window.innerHeight; break;
+                        case 'fit': default: newWidth = availableWidth; newHeight = availableHeight; break;
                     }
                     return { w: Math.floor(newWidth), h: Math.floor(newHeight) };
                 };
@@ -250,8 +245,6 @@
                     const boundaryMarginSlider = document.getElementById('boundaryMargin');
                     wallRepelBtn.addEventListener('click', () => { PARAMS.wallRepel = !PARAMS.wallRepel; wallRepelBtn.textContent = `Boundaries: ${PARAMS.wallRepel ? 'ON' : 'OFF'}`; boundaryMarginSlider.disabled = !PARAMS.wallRepel; boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel); if (isPaused) redrawStatic(); });
                     boundaryMarginSlider.parentElement.classList.toggle('disabled-group', !PARAMS.wallRepel);
-                    
-                    // UPDATED Save Button logic
                     document.getElementById('save-btn').addEventListener('click', () => {
                         let now = new Date();
                         let timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
