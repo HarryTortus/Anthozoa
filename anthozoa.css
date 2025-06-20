@@ -60,6 +60,7 @@ body {
     font-size: 1.1em;
 }
 
+/* UPDATED: Styles for the intro panel button to match control buttons */
 .intro-panel button {
     background: #4C6122;
     color: #EDE3DF;
