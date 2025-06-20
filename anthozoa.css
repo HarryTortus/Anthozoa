@@ -36,7 +36,7 @@ body {
 }
 
 .intro-panel {
-    background: #AC4500;
+    background: #3B4C1A; /* Was #AC4500 */
     color: #EDE3DF;
     padding: 25px;
     border-radius: 12px;
@@ -61,7 +61,7 @@ body {
 }
 
 .intro-panel button {
-    background: #4C6122;
+    background: #AC4500; /* Was #4C6122 */
     color: #EDE3DF;
     border: 1px solid rgba(59, 76, 26, 0.5);
     border-radius: 6px;
@@ -73,7 +73,7 @@ body {
     transition: background 0.3s ease, border-color 0.3s ease;
 }
 .intro-panel button:hover {
-    background: #3B4C1A;
+    background: #8A3700; /* Slightly darker orange for hover */
     border-color: rgba(59, 76, 26, 0.8);
 }
 
@@ -210,3 +210,15 @@ body.fullscreen-active canvas {
 @media (max-width: 420px) {
     .main-title-img { max-height: 60px; }
 }
+p.touchStarted = () => { 
+    const introPanel = document.getElementById('intro-panel-overlay');
+    if (introPanel && !introPanel.classList.contains('hidden')) {
+        return false; // Always return false to prevent p5 from hijacking touch
+    }
+
+    if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height && !isPaused) {
+        allLoops.push(new AnthozoaLoop(p.mouseX, p.mouseY)); 
+        return false; 
+    }
+    return false; // Always return false
+};
